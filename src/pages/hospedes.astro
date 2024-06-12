@@ -22,16 +22,20 @@ const tableData = data.map((guest) => {
     phone: guest.phone,
   };
 });
-
-let columns = Object.keys(tableData[0]);
-
-console.log(tableData, columns);
+let columns = [];
+if (tableData.length > 0) {
+  columns.push(Object.keys(tableData[0]));
+}
 ---
 
 <Layout>
   <div class="flex flex-col items-center">
-    <Table id="guest-table" columns={columns} data={tableData} />
-    {!data && <p>Nenhum hóspede encontrado no banco de dados</p>}
+    {
+      columns.length > 0 && (
+        <Table id="guest-table" columns={columns[0]} data={tableData} />
+      )
+    }
+    {columns.length == 0 && <p>Nenhum hóspede encontrado no banco de dados</p>}
     <a href="/hospedes/cadastro"
       ><button
         class="w-64 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
@@ -40,3 +44,17 @@ console.log(tableData, columns);
     >
   </div>
 </Layout>
+
+<script>
+  const tableBody = document.getElementById("table_content");
+  if (tableBody) {
+    tableBody.addEventListener("click", (event) => {
+      const target = event.target as HTMLElement;
+      const rows = target.parentNode as HTMLTableRowElement;
+      const document = rows.cells[0].textContent;
+      if (document) {
+        window.location.href = window.location.href + "/" + document.trim();
+      }
+    });
+  }
+</script>

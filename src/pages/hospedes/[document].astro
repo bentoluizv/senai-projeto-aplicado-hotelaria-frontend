@@ -1,0 +1,158 @@
+---
+import type { GetStaticPaths } from "astro";
+import ErrorAlert from "../../components/ErrorAlert.astro";
+import Form from "../../components/Form.astro";
+import SelectInput from "../../components/SelectInput.astro";
+import TextInput from "../../components/TextInput.astro";
+import Layout from "../../layouts/Layout.astro";
+
+export const getStaticPaths = (async () => {
+  const response = await fetch("http://127.0.0.1:5000/api/hospedes");
+  const data: any[] = await response.json();
+  const paths = data.map((element) => {
+    return { params: { document: element["document"] } };
+  });
+
+  return paths;
+}) satisfies GetStaticPaths;
+
+const { document } = Astro.params;
+
+const guestResponse = await fetch(
+  `http://127.0.0.1:5000/api/hospedes/${document}`
+);
+const data = await guestResponse.json();
+---
+
+<Layout>
+  <Form id="update-guest-form">
+    <div slot="inputs" class="flex flex-col">
+      <div class="flex w-full">
+        <SelectInput
+          id="document_type"
+          label="Tipo"
+          options={["CPF"]}
+          disabled
+        />
+        <TextInput
+          id="document"
+          label="Documento"
+          value={data.document}
+          disabled
+        />
+      </div>
+      <div class="flex">
+        <TextInput id="name" label="Nome" value={data.name} />
+        <TextInput id="surname" label="Sobrenome" value={data.surname} />
+      </div>
+      <div class="flex">
+        <SelectInput
+          id="country"
+          label="País"
+          options={[data.country]}
+          disabled
+        />
+        <TextInput id="phone" label="Telefone" value={data.phone} />
+      </div>
+    </div>
+    <div
+      slot="buttons"
+      class="flex w-full items-center p-16 align-middle justify-center gap-6">
+      <button
+        id="update_button"
+        class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-56"
+        type="submit">Atualizar</button
+      >
+      <button
+        id="delete_button"
+        class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-56"
+        type="button">Excluir</button
+      >
+    </div>
+  </Form>
+
+  <ErrorAlert
+    id="not-found-alert "
+    content="Já existe um hóspede cadastrado com esse documento"
+  />
+  <ErrorAlert
+    id="bad-request-alert"
+    content="Formulário envido inválido, verifique se todos os campos estão corretos"
+  />
+</Layout>
+
+<script>
+  const form = document.getElementById("update-guest-form") as HTMLFormElement;
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const data: any = {};
+    for (const el of form.elements) {
+      if (el instanceof HTMLSelectElement || el instanceof HTMLInputElement) {
+        if (el.id == "document") {
+          data[el.id] = el.value.replaceAll(".", "").replaceAll("-", "");
+        } else {
+          data[el.id] = el.value.toLowerCase();
+        }
+      }
+    }
+
+    const response = await fetch("http://127.0.0.1:5000/api/hospedes", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (response.status === 400) {
+      const json = await response.json();
+      const errAlert = document.getElementById(
+        "bad-request-alert"
+      ) as HTMLDialogElement;
+      errAlert.showModal();
+    }
+
+    if (response.status === 404) {
+      const errAlert = document.getElementById(
+        "not-found-alert"
+      ) as HTMLDialogElement;
+      errAlert.showModal();
+    }
+
+    if (response.status === 201) {
+      window.location.href = "/hospedes";
+    }
+  });
+
+  const deleteButton = document.getElementById(
+    "delete_button"
+  ) as HTMLButtonElement;
+
+  deleteButton.addEventListener("click", async () => {
+    const element = form.elements.namedItem("document") as HTMLInputElement;
+    const guestDocument = element.value;
+
+    const response = await fetch(
+      `http://127.0.0.1:5000/api/hospedes/${guestDocument}`,
+      { method: "DELETE" }
+    );
+    if (response.status === 400) {
+      const errAlert = document.getElementById(
+        "bad-request-alert"
+      ) as HTMLDialogElement;
+      errAlert.showModal();
+    }
+
+    if (response.status === 404) {
+      const errAlert = document.getElementById(
+        "not-found-alert"
+      ) as HTMLDialogElement;
+      errAlert.showModal();
+    }
+
+    if (response.status === 200) {
+      window.location.href = "/hospedes";
+    }
+  });
+</script>
