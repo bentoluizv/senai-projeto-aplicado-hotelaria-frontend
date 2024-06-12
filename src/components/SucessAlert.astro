@@ -1,0 +1,33 @@
+---
+type Props = {
+  id: string;
+  content: string;
+};
+
+const { id, content } = Astro.props;
+---
+
+<dialog
+  class="px-16 py-3 mt-10 rounded-md text-md bg-lime-600 opacity-90 text-zinc-800"
+  id={id}>
+  <div class="flex align-middle justify-between items-center gap-20">
+    <p class="text-center">{content}</p>
+    <button
+      id="close-button"
+      class="rounded-md bg-black bg-opacity-20 text-zinc-800 font-extrabold px-3 py-1"
+      >X</button
+    >
+  </div>
+</dialog>
+
+<script>
+  const closeButton = document.getElementById(
+    "close-button"
+  ) as HTMLButtonElement;
+
+  closeButton.addEventListener("click", (event) => {
+    const target = event.target as HTMLElement;
+    const dialog = target.parentNode?.parentNode as HTMLDialogElement;
+    dialog.close();
+  });
+</script>
