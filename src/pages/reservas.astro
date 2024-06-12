@@ -1,0 +1,79 @@
+---
+type BookingDTO = {
+  uuid: string;
+  status: string;
+  check_in: string;
+  check_out: string;
+  created_at: string;
+  guest: {
+    country: string;
+    created_at: string;
+    document: string;
+    name: string;
+    phone: string;
+    surname: string;
+  };
+  accommodation: {
+    amenities: Array<string>;
+    created_at: string;
+    double_beds: number;
+    id: number;
+    min_nights: number;
+    name: string;
+    price: number;
+    single_beds: number;
+    status: string;
+    total_guests: number;
+  };
+};
+import Layout from "../layouts/Layout.astro";
+const response = await fetch("http://127.0.0.1:5000/api/reservas");
+const data: Array<BookingDTO> = await response.json();
+console.log(data);
+---
+
+<Layout>
+  <div class="flex flex-col items-center">
+    <table class="mt-14 mb-14 min-w-full p-4 border-spacing-0">
+      <thead class="bg-zinc-400 font-bold h-12 text-center">
+        <td class="p-4">Acomodação</td>
+        <td class="p-4">Hóspede</td>
+        <td class="p-4">Status</td>
+        <td class="p-4">CheckIn</td>
+        <td class="p-4">CheckOut</td>
+      </thead>
+      <tbody id="table_content">
+        {
+          data.map((booking) => {
+            return (
+              <tr class="text-center text-zinc-600 hover:text-zinc-400 cursor-pointer">
+                <td class="border-b border-l text-center p-4 border-zinc-300 last:border-r">
+                  {booking.accommodation.name}
+                </td>
+                <td class="border-b border-l text-center p-4 border-zinc-300 last:border-r">
+                  {booking.guest.name}
+                </td>
+                <td class="border-b border-l text-center p-4 border-zinc-300 last:border-r">
+                  {booking.status}
+                </td>
+                <td class="border-b border-l text-center p-4 border-zinc-300 last:border-r">
+                  {booking.check_in}
+                </td>
+                <td class="border-b border-l text-center p-4 border-zinc-300 last:border-r">
+                  {booking.check_out}
+                </td>
+              </tr>
+            );
+          })
+        }
+      </tbody>
+    </table>
+
+    {!data && <p>Nenhum hóspede encontrado no banco de dados</p>}
+
+    <button
+      class="w-60 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+      >Cadastrar</button
+    >
+  </div>
+</Layout>

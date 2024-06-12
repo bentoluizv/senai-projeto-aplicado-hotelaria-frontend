@@ -1,0 +1,56 @@
+---
+type GuestDTO = {
+  document: string;
+  created_at: string;
+  name: string;
+  surname: string;
+  phone: string;
+  country: string;
+};
+import Layout from "../layouts/Layout.astro";
+const response = await fetch("http://127.0.0.1:5000/api/hospedes");
+const data: Array<GuestDTO> = await response.json();
+console.log(data);
+---
+
+<Layout>
+  <div class="flex flex-col items-center">
+    <table class="mt-14 mb-14 min-w-full p-4 border-spacing-0">
+      <thead class="bg-zinc-400 font-bold h-12 text-center">
+        <td class="p-4">Documento</td>
+        <td class="p-4">Nome</td>
+        <td class="p-4">País</td>
+        <td class="p-4">Telefone</td>
+      </thead>
+      <tbody id="table_content">
+        {
+          data.map((guest) => {
+            return (
+              <tr class="text-center text-zinc-600 hover:text-zinc-400 cursor-pointer">
+                <td class="border-b border-l text-center p-4 border-zinc-300 last:border-r">
+                  {guest.document}
+                </td>
+                <td class="border-b border-l text-center p-4 border-zinc-300 last:border-r">{`${guest.name} ${guest.surname}`}</td>
+                <td class="border-b border-l text-center p-4 border-zinc-300 last:border-r">
+                  {guest.country}
+                </td>
+                <td class="border-b border-l text-center p-4 border-zinc-300 last:border-r">
+                  {guest.phone}
+                </td>
+              </tr>
+            );
+          })
+        }
+      </tbody>
+    </table>
+
+    {!data && <p>Nenhum hóspede encontrado no banco de dados</p>}
+
+    <a href="/hospedes/cadastro"
+      ><button
+        class="w-64 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+        >Cadastrar</button
+      ></a
+    >
+  </div>
+</Layout>
