@@ -70,89 +70,105 @@ const data = await guestResponse.json();
       >
     </div>
   </Form>
-
-  <ErrorAlert
-    id="not-found-alert "
+  <ErrorAlert id="bad-request-alert" />
+  <!-- <ErrorAlert
+    id="not-found-alert"
     content="Já existe um hóspede cadastrado com esse documento"
   />
-  <ErrorAlert
-    id="bad-request-alert"
-    content="Formulário envido inválido, verifique se todos os campos estão corretos"
-  />
-</Layout>
+</Layout> -->
 
-<script>
-  const form = document.getElementById("update-guest-form") as HTMLFormElement;
+  <script>
+    const form = document.getElementById(
+      "update-guest-form"
+    ) as HTMLFormElement;
 
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const data: any = {};
-    for (const el of form.elements) {
-      if (el instanceof HTMLSelectElement || el instanceof HTMLInputElement) {
-        if (el.id == "document") {
-          data[el.id] = el.value.replaceAll(".", "").replaceAll("-", "");
-        } else {
-          data[el.id] = el.value.toLowerCase();
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const data: any = {};
+      for (const el of form.elements) {
+        if (el instanceof HTMLSelectElement || el instanceof HTMLInputElement) {
+          if (el.id == "document") {
+            data[el.id] = el.value.replaceAll(".", "").replaceAll("-", "");
+          } else {
+            data[el.id] = el.value.toLowerCase();
+          }
         }
       }
-    }
 
-    const response = await fetch("http://127.0.0.1:5000/api/hospedes", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
+      const response = await fetch("http://127.0.0.1:5000/api/hospedes", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.status === 400) {
+        const errorModal = document.getElementById(
+          "errorAlert"
+        ) as HTMLDialogElement;
+        const p = document.getElementById(
+          "text-content"
+        ) as HTMLParagraphElement;
+        p.textContent =
+          "Algum campo do formulário está inválido, verifique novamente e tente  de novo";
+        errorModal.showModal();
+      }
+
+      if (response.status === 404) {
+        const errorModal = document.getElementById(
+          "errorAlert"
+        ) as HTMLDialogElement;
+        const p = document.getElementById(
+          "text-content"
+        ) as HTMLParagraphElement;
+        p.textContent = "Hóspede não cadastrado";
+        errorModal.showModal();
+      }
+
+      if (response.status === 201) {
+        window.location.href = "/hospedes";
+      }
     });
 
-    if (response.status === 400) {
-      const json = await response.json();
-      const errAlert = document.getElementById(
-        "bad-request-alert"
-      ) as HTMLDialogElement;
-      errAlert.showModal();
-    }
+    const deleteButton = document.getElementById(
+      "delete_button"
+    ) as HTMLButtonElement;
 
-    if (response.status === 404) {
-      const errAlert = document.getElementById(
-        "not-found-alert"
-      ) as HTMLDialogElement;
-      errAlert.showModal();
-    }
+    deleteButton.addEventListener("click", async () => {
+      const element = form.elements.namedItem("document") as HTMLInputElement;
+      const guestDocument = element.value;
 
-    if (response.status === 201) {
-      window.location.href = "/hospedes";
-    }
-  });
+      const response = await fetch(
+        `http://127.0.0.1:5000/api/hospedes/${guestDocument}`,
+        { method: "DELETE" }
+      );
+      if (response.status === 400) {
+        const errorModal = document.getElementById(
+          "errorAlert"
+        ) as HTMLDialogElement;
+        const p = document.getElementById(
+          "text-content"
+        ) as HTMLParagraphElement;
+        p.textContent =
+          "Algum campo do formulário está inválido, verifique novamente e tente  de novo";
+        errorModal.showModal();
+      }
 
-  const deleteButton = document.getElementById(
-    "delete_button"
-  ) as HTMLButtonElement;
+      if (response.status === 404) {
+        const errorModal = document.getElementById(
+          "errorAlert"
+        ) as HTMLDialogElement;
+        const p = document.getElementById(
+          "text-content"
+        ) as HTMLParagraphElement;
+        p.textContent = "Hóspede não cadastrado";
+        errorModal.showModal();
+      }
 
-  deleteButton.addEventListener("click", async () => {
-    const element = form.elements.namedItem("document") as HTMLInputElement;
-    const guestDocument = element.value;
-
-    const response = await fetch(
-      `http://127.0.0.1:5000/api/hospedes/${guestDocument}`,
-      { method: "DELETE" }
-    );
-    if (response.status === 400) {
-      const errAlert = document.getElementById(
-        "bad-request-alert"
-      ) as HTMLDialogElement;
-      errAlert.showModal();
-    }
-
-    if (response.status === 404) {
-      const errAlert = document.getElementById(
-        "not-found-alert"
-      ) as HTMLDialogElement;
-      errAlert.showModal();
-    }
-
-    if (response.status === 200) {
-      window.location.href = "/hospedes";
-    }
-  });
-</script>
+      if (response.status === 200) {
+        window.location.href = "/hospedes";
+      }
+    });
+  </script>
+</Layout>

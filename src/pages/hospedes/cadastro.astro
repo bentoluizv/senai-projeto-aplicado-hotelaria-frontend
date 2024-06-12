@@ -37,15 +37,7 @@ const countries = [
       >
     </div>
   </Form>
-
-  <ErrorAlert
-    id="conflict-alert"
-    content="Já existe um hóspede cadastrado com esse documento"
-  />
-  <ErrorAlert
-    id="bad-request-alert"
-    content="Formulário envido inválido, verifique se todos os campos estão corretos"
-  />
+  <ErrorAlert id="errorAlert" />
 </Layout>
 
 <script>
@@ -76,18 +68,22 @@ const countries = [
     );
 
     if (response.status === 400) {
-      const json = await response.json();
-      const errAlert = document.getElementById(
-        "bad-request-alert"
+      const errorModal = document.getElementById(
+        "errorAlert"
       ) as HTMLDialogElement;
-      errAlert.showModal();
+      const p = document.getElementById("text-content") as HTMLParagraphElement;
+      p.textContent =
+        "Algum campo do formulário está inválido, verifique novamente e tente  de novo";
+      errorModal.showModal();
     }
 
     if (response.status === 409) {
-      const errAlert = document.getElementById(
-        "conflict-alert"
+      const errorModal = document.getElementById(
+        "errorAlert"
       ) as HTMLDialogElement;
-      errAlert.showModal();
+      const p = document.getElementById("text-content") as HTMLParagraphElement;
+      p.textContent = "Já existe um hóspede com esse documento registrado";
+      errorModal.showModal();
     }
 
     if (response.status === 201) {
