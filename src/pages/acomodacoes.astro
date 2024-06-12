@@ -10,41 +10,27 @@ type AccommodationDTO = {
   min_nights: number;
   amenities: Array<string>;
 };
+import Table from "../components/Table.astro";
 import Layout from "../layouts/Layout.astro";
 const response = await fetch("http://127.0.0.1:5000/api/acomodacoes");
 const data: Array<AccommodationDTO> = await response.json();
-console.log(data);
+const tableData = data.map((accommodation) => {
+  return {
+    id: accommodation.id,
+    nome: accommodation.name,
+    status: accommodation.status,
+  };
+});
+const columns = Object.keys(tableData[0]);
 ---
 
 <Layout>
   <div class="flex flex-col items-center">
-    <table class="mt-14 mb-14 min-w-full p-4 border-spacing-0">
-      <thead class="bg-zinc-400 font-bold h-12 text-center">
-        <td class="p-4">Id</td>
-        <td class="p-4">Nome</td>
-        <td class="p-4">Status</td>
-      </thead>
-      <tbody id="table_content">
-        {
-          data.map((accommodation) => {
-            return (
-              <tr class="text-center text-zinc-600 hover:text-zinc-400 cursor-pointer">
-                <td class="border-b border-l text-center p-4 border-zinc-300 last:border-r">
-                  {accommodation.id}
-                </td>
-                <td class="border-b border-l text-center p-4 border-zinc-300 last:border-r">
-                  {accommodation.name}
-                </td>
-                <td class="border-b border-l text-center p-4 border-zinc-300 last:border-r">
-                  {accommodation.status}
-                </td>
-              </tr>
-            );
-          })
-        }
-      </tbody>
-    </table>
-
+    {
+      data && (
+        <Table id="accommodation-table" columns={columns} data={tableData} />
+      )
+    }
     {!data && <p>Nenhum hóspede encontrado no banco de dados</p>}
 
     <button
