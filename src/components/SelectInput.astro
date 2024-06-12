@@ -1,0 +1,25 @@
+---
+type Props = {
+  id: string;
+  label: string;
+  options: string[];
+  disabled?: boolean;
+};
+
+const { id, label, options, disabled } = Astro.props;
+---
+
+<div class="flex flex-col w-1/2 p-2">
+  <label for={id}>{label}</label>
+  <select
+    class="appearance-none p-2 border border-zinc-300 rounded"
+    name={id}
+    id={id}
+    {disabled}>
+    {
+      options.map((option, index) => {
+        return <option>{option}</option>;
+      })
+    }
+  </select>
+</div>
