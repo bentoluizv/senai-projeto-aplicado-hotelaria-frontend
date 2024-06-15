@@ -1,41 +1,65 @@
 ---
-type AccommodationDTO = {
-  id: number;
-  created_at: string;
-  name: string;
-  total_guests: number;
-  single_beds: number;
-  double_beds: number;
-  status: string;
-  min_nights: number;
-  amenities: Array<string>;
-};
 import Table from "../components/Table.astro";
 import Layout from "../layouts/Layout.astro";
+import { accommodationSchema } from "../schemas/schemas";
+
 const response = await fetch("http://127.0.0.1:5000/api/acomodacoes");
-const data: Array<AccommodationDTO> = await response.json();
-const tableData = data.map((accommodation) => {
+const data = await response.json();
+const parsedData = await accommodationSchema.array().safeParseAsync(data);
+
+if (!parsedData.success) {
+  throw new Error(parsedData.error.message);
+}
+
+const tableData = parsedData.data.map(({ id, name, status, price }) => {
   return {
-    id: accommodation.id,
-    nome: accommodation.name,
-    status: accommodation.status,
+    id: String(id),
+    name,
+    status,
+    price: Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(price),
   };
 });
-const columns = Object.keys(tableData[0]);
 ---
 
 <Layout>
   <div class="flex flex-col items-center">
     {
-      data && (
-        <Table id="accommodation-table" columns={columns} data={tableData} />
+      tableData.length > 0 && (
+        <Table
+          id="accommodation-table"
+          columns={Object.keys(tableData[0])}
+          data={tableData}
+        />
       )
     }
-    {!data && <p>Nenhum hóspede encontrado no banco de dados</p>}
+    {
+      tableData.length == 0 && (
+        <p>Nenhum hóspede encontrado no banco de dados</p>
+      )
+    }
 
-    <button
-      class="w-60 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-      >Cadastrar</button
+    <a href="/acomodacoes/cadastro"
+      ><button
+        class="w-64 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+        >Cadastrar</button
+      ></a
     >
   </div>
+
+  <script>
+    const tableBody = document.getElementById("table_content");
+    if (tableBody) {
+      tableBody.addEventListener("click", (event) => {
+        const target = event.target as HTMLElement;
+        const rows = target.parentNode as HTMLTableRowElement;
+        const id = rows.cells[0].textContent;
+        if (id) {
+          window.location.href = `${window.location.href.trim()}/${id.trim()}`;
+        }
+      });
+    }
+  </script>
 </Layout>
