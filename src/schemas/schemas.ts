@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { isValidCpf } from "../utils/isValidCpf";
 
 export const guestSchema = z.object({
     created_at: z.string().optional(),
-    document: z.string().refine((value) => isValidCpf(value), "Cpf Inválido"),
+    document: z.string(),
+    // document: z.string().refine((value) => isValidCpf(value), "Cpf Inválido"),
     name: z.string().trim().min(1, "Você deve preencher esse campo"),
     surname: z.string().trim().min(1, "Você deve preencher esse campo"),
     country: z.string().trim().min(1, "Você deve preencher esse campo"),
