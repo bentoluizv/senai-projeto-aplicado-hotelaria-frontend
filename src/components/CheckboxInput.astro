@@ -1,0 +1,22 @@
+---
+type Props = {
+  id: string;
+  label: string;
+  disabled?: boolean;
+  checked?: boolean;
+};
+
+const { id, label, disabled, checked } = Astro.props;
+---
+
+<div class="flex items-center h=full w-1/3">
+  <input
+    class="w-1/4 h-5"
+    type="checkbox"
+    id={id}
+    name={id}
+    disabled={disabled}
+    checked={checked}
+  />
+  <label class="w-3/4 h-5 font-light text-xl" for={id}>{label}</label>
+</div>
