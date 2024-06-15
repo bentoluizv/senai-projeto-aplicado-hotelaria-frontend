@@ -27,8 +27,8 @@ export const bookingSchema = z.object({
     uuid: z.string().uuid("Not UUID").optional(),
     created_at: z.string().optional(),
     status: z.string().optional(),
-    checkIn: z.string(),
-    checkOut: z.string(),
+    check_in: z.string(),
+    check_out: z.string(),
     guest: guestSchema,
     accommodation: accommodationSchema
 })
