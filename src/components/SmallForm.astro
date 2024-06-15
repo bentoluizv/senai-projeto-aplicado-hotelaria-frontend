@@ -1,0 +1,12 @@
+---
+type Props = {
+  id: string;
+};
+
+const { id } = Astro.props;
+---
+
+<form id={id} class="w-full h-full flex flex-col self-center grow">
+  <slot name="inputs" />
+  <slot name="buttons" />
+</form>
