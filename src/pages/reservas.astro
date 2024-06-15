@@ -1,55 +1,59 @@
 ---
-type BookingDTO = {
-  uuid: string;
-  status: string;
-  check_in: string;
-  check_out: string;
-  created_at: string;
-  guest: {
-    country: string;
-    created_at: string;
-    document: string;
-    name: string;
-    phone: string;
-    surname: string;
-  };
-  accommodation: {
-    amenities: Array<string>;
-    created_at: string;
-    double_beds: number;
-    id: number;
-    min_nights: number;
-    name: string;
-    price: number;
-    single_beds: number;
-    status: string;
-    total_guests: number;
-  };
-};
 import Table from "../components/Table.astro";
 import Layout from "../layouts/Layout.astro";
+import { bookingSchema } from "../schemas/schemas";
+
 const response = await fetch("http://127.0.0.1:5000/api/reservas");
-const data: Array<BookingDTO> = await response.json();
-const tableData = data.map((booking) => {
-  return {
-    accommodation: booking.accommodation.name,
-    guest: booking.guest.name,
-    status: booking.status,
-    checkIn: booking.check_in,
-    checkOut: booking.check_out,
-  };
-});
-const columns = Object.keys(tableData[0]);
+const data = await response.json();
+const parsedData = await bookingSchema.array().safeParseAsync(data);
+if (!parsedData.success) {
+  throw new Error(parsedData.error.message);
+}
+const tableData = parsedData.data.map(
+  ({ guest, accommodation, check_in, check_out, status, uuid }) => {
+    return {
+      uuid,
+      name: guest.name,
+      accommodation: accommodation.name,
+      checkIn: check_in,
+      checkOut: check_out,
+      status: status,
+    };
+  }
+);
+let columns: any[] = [];
+if (tableData.length > 0) {
+  columns.push(Object.keys(tableData[0]));
+}
 ---
 
 <Layout>
   <div class="flex flex-col items-center">
-    {data && <Table id="booking-table" columns={columns} data={tableData} />}
-    {!data && <p>Nenhum hóspede encontrado no banco de dados</p>}
-
-    <button
-      class="w-60 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-      >Cadastrar</button
+    {
+      columns.length > 0 && (
+        <Table id="booking-table" columns={columns[0]} data={tableData} />
+      )
+    }
+    {columns.length == 0 && <p>Nenhum hóspede encontrado no banco de dados</p>}
+    <a href="/reservas/cadastro"
+      ><button
+        class="w-64 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+        >Cadastrar</button
+      ></a
     >
   </div>
 </Layout>
+
+<script>
+  const tableBody = document.getElementById("table_content");
+  if (tableBody) {
+    tableBody.addEventListener("click", (event) => {
+      const target = event.target as HTMLElement;
+      const rows = target.parentNode as HTMLTableRowElement;
+      const uuid = rows.cells[0].textContent;
+      if (uuid) {
+        window.location.href = window.location.href + "/" + uuid.trim();
+      }
+    });
+  }
+</script>
