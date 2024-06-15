@@ -1,20 +1,17 @@
 ---
-export type GuestDTO = {
-  document: string;
-  created_at: string;
-  name: string;
-  surname: string;
-  phone: string;
-  country: string;
-};
-
 import Table from "../components/Table.astro";
 import Layout from "../layouts/Layout.astro";
+import { guestSchema } from "../schemas/schemas";
 
 const response = await fetch("http://127.0.0.1:5000/api/hospedes");
-const data: Array<GuestDTO> = await response.json();
+const data = await response.json();
+const parsedData = await guestSchema.array().safeParseAsync(data);
 
-const tableData = data.map((guest) => {
+if (!parsedData.success) {
+  throw new Error(parsedData.error.message);
+}
+
+const tableData = parsedData.data.map((guest) => {
   return {
     document: guest.document,
     name: `${guest.name} ${guest.surname}`,
