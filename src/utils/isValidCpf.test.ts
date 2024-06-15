@@ -1,6 +1,9 @@
-import { expect, test } from "vitest";
+import { assert, test } from "vitest";
 import { isValidCpf } from "./isValidCpf";
 
 test('should return true for a valid cpf', () => {
-    expect(isValidCpf("001.576.242-42")).toBe(true)
+    assert(isValidCpf('00157624242'))
+    assert(isValidCpf('76665291200'))
+    assert(isValidCpf('44536578463'))
+    assert(isValidCpf('51069362174'))
 })
