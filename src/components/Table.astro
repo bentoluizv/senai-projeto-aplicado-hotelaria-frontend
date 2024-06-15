@@ -12,7 +12,13 @@ const { id, columns, data } = Astro.props;
   <thead class="bg-zinc-500 text-amber-50 font-bold h-12 text-center">
     {
       columns.map((col) => {
-        return <td class="p-4">{col}</td>;
+        return col == "uuid" ? (
+          <td hidden class="p-4">
+            {col}
+          </td>
+        ) : (
+          <td class="p-4">{col}</td>
+        );
       })
     }
   </thead>
@@ -22,7 +28,13 @@ const { id, columns, data } = Astro.props;
         return (
           <tr class="text-center text-zinc-600 hover:bg-orange-200 cursor-pointer">
             {columns.map((col) => {
-              return (
+              return col == "uuid" ? (
+                <td
+                  hidden
+                  class="border-b border-l text-center p-4 border-zinc-300 last:border-r">
+                  {content[col]}
+                </td>
+              ) : (
                 <td class="border-b border-l text-center p-4 border-zinc-300 last:border-r">
                   {content[col]}
                 </td>
