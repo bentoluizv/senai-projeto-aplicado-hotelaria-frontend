@@ -1,0 +1,168 @@
+---
+import CheckboxInput from "../../components/CheckboxInput.astro";
+import ErrorAlert from "../../components/ErrorAlert.astro";
+import Form from "../../components/Form.astro";
+import NumberInputSmall from "../../components/NumberInputSmall.astro";
+import TextInput from "../../components/TextInput.astro";
+import Layout from "../../layouts/Layout.astro";
+
+const response = await fetch("http://127.0.0.1:5000/api/amenities");
+const amenities = await response.json();
+---
+
+<Layout>
+  <Form id="new-accommodation-form">
+    <div slot="inputs" class="flex flex-col gap-6">
+      <TextInput id="name" label="Nome" />
+      <div class="flex gap-4">
+        <NumberInputSmall id="min_nights" label="Min. Noites" />
+        <NumberInputSmall id="total_guests" label="Max. Hospedes" />
+        <NumberInputSmall id="single_beds" label="Cama Solteiro" />
+        <NumberInputSmall id="double_beds" label="Cama Casal" />
+        <NumberInputSmall id="price" label="Preço" />
+      </div>
+      <div class="w-full h-[120px] flex p-2 justify-between flex-wrap">
+        {
+          amenities.map(({ amenitie }: { amenitie: string }) => {
+            return <CheckboxInput id={amenitie} label={amenitie} />;
+          })
+        }
+      </div>
+    </div>
+
+    <div slot="buttons" class="flex flex-col w-full items-center p-16">
+      <button
+        id="submit_button"
+        class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-56"
+        type="submit">Cadastrar</button
+      >
+    </div>
+  </Form>
+  <ErrorAlert id="bad-request-err-modal" />
+  <ErrorAlert id="conflict-err-modal" />
+  <ErrorAlert id="failed-parse-data-err-modal" />
+</Layout>
+
+<script>
+  import { accommodationSchema } from "../../schemas/schemas";
+
+  const form = document.getElementById(
+    "new-accommodation-form"
+  ) as HTMLFormElement;
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const rawData = new FormData(form);
+
+    let formData: any = {};
+    for (const [key, value] of rawData) {
+      formData[key] = value;
+    }
+
+    const amenities = [];
+    const data: any = {};
+
+    for (const property in formData) {
+      if (formData[property] == "on") {
+        amenities.push(property);
+      } else {
+        data[property] = formData[property];
+      }
+    }
+
+    data.amenities = amenities;
+
+    const parsedData = await accommodationSchema.safeParseAsync(data);
+
+    if (parsedData.success) {
+      const {
+        name,
+        total_guests,
+        single_beds,
+        double_beds,
+        min_nights,
+        amenities,
+        price,
+      } = parsedData.data;
+
+      const accommodationData = {
+        name,
+        total_guests,
+        single_beds,
+        double_beds,
+        min_nights,
+        amenities,
+        price,
+      };
+
+      const response = await fetch(
+        "http://127.0.0.1:5000/api/acomodacoes/cadastro",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(accommodationData),
+        }
+      );
+
+      if (response.status === 400) {
+        const errorModal = document.getElementById(
+          "bad-request-err-modal"
+        ) as HTMLDialogElement;
+        const div = errorModal.getElementsByTagName("div")[0];
+
+        const p = document.createElement("p");
+        p.textContent = "Requisição Inválida";
+        div.appendChild(p);
+
+        errorModal.showModal();
+        setTimeout(() => errorModal.close(), 2000);
+      }
+
+      if (response.status === 409) {
+        const errorModal = document.getElementById(
+          "conflict-err-modal"
+        ) as HTMLDialogElement;
+
+        const div = errorModal.getElementsByTagName("div")[0];
+
+        const p = document.createElement("p");
+        p.textContent = "Já existe uma acomodação cadastrda com esse nome";
+        div.appendChild(p);
+
+        errorModal.showModal();
+        setTimeout(() => errorModal.close(), 2000);
+      }
+
+      if (response.status === 201) {
+        window.location.href = "/acomodacoes";
+      }
+    }
+
+    if (!parsedData.success) {
+      const fieldErrs = parsedData.error.formErrors.fieldErrors;
+      const errors = [];
+
+      for (const [key, [value]] of Object.entries(fieldErrs)) {
+        errors.push(`Error: [${key}]: ${value}`);
+      }
+
+      const errorModal = document.getElementById(
+        "failed-parse-data-err-modal"
+      ) as HTMLDialogElement;
+
+      const div = errorModal.getElementsByTagName("div")[0];
+
+      for (const err of errors) {
+        const p = document.createElement("p");
+        p.textContent = err;
+        div.appendChild(p);
+      }
+
+      errorModal.showModal();
+      setTimeout(() => errorModal.close(), 2000);
+    }
+  });
+</script>
