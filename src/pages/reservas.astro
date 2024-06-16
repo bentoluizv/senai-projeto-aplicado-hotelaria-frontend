@@ -5,25 +5,29 @@ import { bookingSchema } from "../schemas/schemas";
 
 const response = await fetch("http://127.0.0.1:5000/api/reservas");
 const data = await response.json();
-const parsedData = await bookingSchema.array().safeParseAsync(data);
-if (!parsedData.success) {
-  throw new Error(parsedData.error.message);
-}
-const tableData = parsedData.data.map(
-  ({ guest, accommodation, check_in, check_out, status, uuid }) => {
-    return {
-      uuid,
-      name: guest.name,
-      accommodation: accommodation.name,
-      checkIn: check_in,
-      checkOut: check_out,
-      status: status,
-    };
-  }
-);
+
+console.log(data);
+const tableData = data.map((element: any) => {
+  return {
+    uuid: element.uuid,
+    createdAt: element.created_at,
+    status: element.status,
+    checkIn: element.check_in,
+    checkOut: element.check_out,
+    guestName: element.guest_name,
+    guestPhone: element.guest_phone,
+    accommodationName: element.accommodation_name,
+    accommodationPrice: element.accommodation_price,
+    budget: element.total,
+    totalNights: element.total_nights,
+  };
+});
+
+const parsedTableData = await bookingSchema.array().parseAsync(tableData);
+
 let columns: any[] = [];
-if (tableData.length > 0) {
-  columns.push(Object.keys(tableData[0]));
+if (parsedTableData.length > 0) {
+  columns.push(Object.keys(parsedTableData[0]));
 }
 ---
 
@@ -31,7 +35,7 @@ if (tableData.length > 0) {
   <div class="flex flex-col items-center">
     {
       columns.length > 0 && (
-        <Table id="booking-table" columns={columns[0]} data={tableData} />
+        <Table id="booking-table" columns={columns[0]} data={parsedTableData} />
       )
     }
     {columns.length == 0 && <p>Nenhum hóspede encontrado no banco de dados</p>}
