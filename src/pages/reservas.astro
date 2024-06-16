@@ -52,7 +52,12 @@ if (tableData.length > 0) {
       const rows = target.parentNode as HTMLTableRowElement;
       const uuid = rows.cells[0].textContent;
       if (uuid) {
-        window.location.href = window.location.href + "/" + uuid.trim();
+        const url = window.location.href;
+        if (url.endsWith("/")) {
+          window.location.href = url + uuid.trim();
+        } else {
+          window.location.href = url + "/" + uuid.trim();
+        }
       }
     });
   }
