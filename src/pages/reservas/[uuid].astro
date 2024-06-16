@@ -1,0 +1,131 @@
+---
+import type { GetStaticPaths } from "astro";
+import ErrorAlert from "../../components/ErrorAlert.astro";
+import SmallForm from "../../components/SmallForm.astro";
+import TextInput from "../../components/TextInput.astro";
+import Layout from "../../layouts/Layout.astro";
+import { bookingSchema } from "../../schemas/schemas";
+
+export const getStaticPaths = (async () => {
+  const response = await fetch("http://127.0.0.1:5000/api/reservas");
+  const data: any[] = await response.json();
+  const paths = data.map((element) => {
+    return { params: { uuid: element["uuid"] } };
+  });
+
+  return paths;
+}) satisfies GetStaticPaths;
+
+const { uuid } = Astro.params;
+
+const guestResponse = await fetch(`http://127.0.0.1:5000/api/reservas/${uuid}`);
+const data = await guestResponse.json();
+const { guest, accommodation, check_in, check_out, status } =
+  await bookingSchema.parseAsync(data);
+---
+
+<Layout>
+  <SmallForm id="update-booking-form">
+    <div slot="inputs" class="flex flex-col items-center grow">
+      <div class="w-full grid grid-cols-2 p-4">
+        <TextInput disabled id="status" label="Status" value={status} />
+        <TextInput
+          disabled
+          id="document"
+          label="Documento"
+          value={guest.document}
+        />
+      </div>
+      <div class="w-full grid grid-cols-2 p-4">
+        <TextInput
+          disabled
+          id="guest_name"
+          label="Nome"
+          value=`${guest.name} ${guest.surname}`
+        />
+        <TextInput
+          disabled
+          id="guest_phone"
+          label="Telefone"
+          value={guest.phone}
+        />
+      </div>
+
+      <div class="w-full grid grid-cols-3 p-4 gap-4">
+        <TextInput
+          disabled
+          id="accommodations"
+          label="Acomodação"
+          value={accommodation.name}
+        />
+        <TextInput disabled id="check_in" label="Check In" value={check_in} />
+        <TextInput
+          disabled
+          id="check_out"
+          label="Check Out"
+          value={check_out}
+        />
+      </div>
+
+      <div class="w-full grid grid-cols-5 p-4 gap-4">
+        <TextInput
+          disabled
+          id="total_guests"
+          label="Max. Hóspedes"
+          value={String(accommodation.total_guests)}
+        />
+        <TextInput
+          disabled
+          id="min_nights"
+          label="Min. Noites"
+          value={String(accommodation.min_nights)}
+        />
+        <TextInput
+          disabled
+          id="single_beds"
+          label="Cama Solteiro"
+          value={String(accommodation.single_beds)}
+        />
+        <TextInput
+          disabled
+          id="double_beds"
+          label="Cama Casal"
+          value={String(accommodation.double_beds)}
+        />
+        <TextInput
+          disabled
+          id="price"
+          label="Preço"
+          value={String(accommodation.price)}
+        />
+      </div>
+
+      <div class="w-full grid grid-cols-3 p-4 gap-4">
+        <TextInput disabled id="amount" label="Total" />
+        <TextInput disabled id="total_nights" label="Total de noites" />
+        <div class="flex flex-col w-full self-end">
+          <button
+            id="back_btn"
+            type="button"
+            class="bg-blue-600 hover:bg-blue-400 text-white hover:text-zinc-800 font-bold px-12 py-2 rounded-md mb-2 w-full">
+            Voltar
+          </button>
+        </div>
+      </div>
+    </div>
+  </SmallForm>
+  <ErrorAlert id="bad-request-alert" />
+  <!-- <ErrorAlert
+    id="not-found-alert"
+    content="Já existe um hóspede cadastrado com esse documento"
+  />
+</Layout> -->
+
+  <script>
+    const backButton = document.getElementById("back_btn") as HTMLFormElement;
+
+    backButton.addEventListener("click", async (event) => {
+      window.location.href = "/reservas";
+    });
+  </script>
+</Layout>
