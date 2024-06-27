@@ -45,7 +45,7 @@ let columns = ["Documento", "Nome", "País", "Telefone", "Criado em:"];
       const rows = target.parentNode as HTMLTableRowElement;
       const document = rows.cells[0].textContent;
       if (document) {
-        window.location.href = window.location.href + "/" + document.trim();
+        window.location.href = `/hospedes/${document.trim()}`;
       }
     });
   }
