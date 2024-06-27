@@ -3,9 +3,11 @@ import Table from "../components/Table.astro";
 import Layout from "../layouts/Layout.astro";
 import { accommodationSchema } from "../schemas/schemas";
 
-const response = await fetch("http://127.0.0.1:5000/api/acomodacoes");
+const response = await fetch("http://127.0.0.1:8000/acomodacoes");
 const data = await response.json();
-const parsedData = await accommodationSchema.array().safeParseAsync(data);
+const parsedData = await accommodationSchema
+  .array()
+  .safeParseAsync(data["accommodations"]);
 
 if (!parsedData.success) {
   throw new Error(parsedData.error.message);
