@@ -9,12 +9,12 @@ const countries = [
 ---
 
 <div class="flex w-full flex-col p-2">
-  <label for="country_select">País</label>
+  <label for="country">País</label>
   <select
     class="appearance-none p-2 border border-zinc-300 rounded"
-    name="country_select"
-    id="country_select">
-    <option selected disabled>Selecione</option>
+    name="country"
+    id="country">
+    <option selected disabled class="country">Selecione</option>
     {
       countries.map((country) => {
         return <option class="country">{country}</option>;
