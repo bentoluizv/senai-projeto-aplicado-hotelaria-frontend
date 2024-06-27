@@ -1,4 +1,5 @@
 ---
+import { string } from "zod";
 import CheckboxInput from "../../components/CheckboxInput.astro";
 import ErrorAlert from "../../components/ErrorAlert.astro";
 import Form from "../../components/Form.astro";
@@ -6,8 +7,12 @@ import NumberInputSmall from "../../components/NumberInputSmall.astro";
 import TextInput from "../../components/TextInput.astro";
 import Layout from "../../layouts/Layout.astro";
 
-const response = await fetch("http://127.0.0.1:5000/api/amenities");
-const amenities = await response.json();
+type AmenitieList = {
+  amenities: { id: string; name: string }[];
+};
+const response = await fetch("http://127.0.0.1:8000/amenities");
+const data: AmenitieList = await response.json();
+const amenities = data["amenities"];
 ---
 
 <Layout>
@@ -23,8 +28,13 @@ const amenities = await response.json();
       </div>
       <div class="w-full h-[120px] flex p-2 justify-between flex-wrap">
         {
-          amenities.map(({ amenitie }: { amenitie: string }) => {
-            return <CheckboxInput id={amenitie} label={amenitie} />;
+          amenities.map((amenitie) => {
+            return (
+              <CheckboxInput
+                id={`amenitie_${amenitie.id}`}
+                label={amenitie.name}
+              />
+            );
           })
         }
       </div>
