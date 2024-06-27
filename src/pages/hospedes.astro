@@ -5,31 +5,26 @@ import { guestSchema } from "../schemas/schemas";
 
 const response = await fetch("http://127.0.0.1:8000/hospedes");
 const data = await response.json();
-const parsedData = await guestSchema.array().safeParseAsync(data);
 
-if (!parsedData.success) {
-  throw new Error(parsedData.error.message);
-}
+const parsedData = await guestSchema.array().parseAsync(data["guests"]);
 
-const tableData = parsedData.data.map((guest) => {
+const tableData = parsedData.map((guest) => {
   return {
     document: guest.document,
     name: `${guest.name} ${guest.surname}`,
     country: guest.country,
     phone: guest.phone,
+    created_at: guest.created_at.toLocaleString(),
   };
 });
-let columns = [];
-if (tableData.length > 0) {
-  columns.push(Object.keys(tableData[0]));
-}
+let columns = ["Documento", "Nome", "País", "Telefone", "Criado em:"];
 ---
 
 <Layout>
   <div class="flex flex-col items-center">
     {
       columns.length > 0 && (
-        <Table id="guest-table" columns={columns[0]} data={tableData} />
+        <Table id="guest-table" columns={columns} data={tableData} />
       )
     }
     {columns.length == 0 && <p>Nenhum hóspede encontrado no banco de dados</p>}
