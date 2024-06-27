@@ -59,18 +59,13 @@ export const accommodationSchema = z.object({
 
 export const creationalAccommodationSchema = z.object({
   name: z.string().trim(),
-  status: z.string().trim(),
+  status: z.string().trim().default("Disponivel"),
   total_guests: z.coerce.number().min(1),
   single_beds: z.coerce.number().min(0),
   double_beds: z.coerce.number().min(0),
   min_nights: z.coerce.number().min(0),
   price: z.coerce.number().min(0),
-  amenities: z.array(
-    z.object({
-      id: z.string(),
-      name: z.string(),
-    })
-  ),
+  amenities: z.array(z.string()),
 });
 
 export const bookingSchema = z.object({
