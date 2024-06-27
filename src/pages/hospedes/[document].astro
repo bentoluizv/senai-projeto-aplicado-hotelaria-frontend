@@ -4,6 +4,7 @@ import Form from "../../components/Form.astro";
 import TextInput from "../../components/TextInput.astro";
 import Layout from "../../layouts/Layout.astro";
 import SelectCountryInput from "../../components/SelectCountryInput.astro";
+import { guestSchema } from "../../schemas/schemas";
 
 export const getStaticPaths = (async () => {
   const response = await fetch("http://127.0.0.1:8000/hospedes");
@@ -19,21 +20,18 @@ const { document } = Astro.params;
 
 const guestResponse = await fetch(`http://127.0.0.1:8000/hospedes/${document}`);
 const data = await guestResponse.json();
+const guest = await guestSchema.parseAsync(data);
 ---
 
 <Layout>
   <Form id="update-guest-form">
     <div slot="inputs" class="flex flex-col w-full max-w-lg mx-auto">
-      <TextInput
-        id="document"
-        label="Documento"
-        value={data.document}
-        disabled
-      />
-      <TextInput id="name" label="Nome" value={data.name} />
-      <TextInput id="surname" label="Sobrenome" value={data.surname} />
+      <TextInput id="created_at" label="Criado em" value={guest.created_at} />
+      <TextInput id="document" label="Documento" value={guest.document} />
+      <TextInput id="name" label="Nome" value={guest.name} />
+      <TextInput id="surname" label="Sobrenome" value={guest.surname} />
       <SelectCountryInput />
-      <TextInput id="phone" label="Telefone" value={data.phone} />
+      <TextInput id="phone" label="Telefone" value={guest.phone} />
     </div>
     <div
       slot="buttons"
@@ -53,32 +51,37 @@ const data = await guestResponse.json();
 </Layout>
 
 <script>
+  import { creationalGuestSchema } from "../../schemas/schemas";
+  import { getFormData } from "../../utils/getFormData";
   const form = document.getElementById("update-guest-form") as HTMLFormElement;
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
-    const data: any = {};
-    for (const el of form.elements) {
-      if (el instanceof HTMLSelectElement || el instanceof HTMLInputElement) {
-        if (el.id == "document") {
-          data[el.id] = el.value.replaceAll(".", "").replaceAll("-", "");
-        } else {
-          data[el.id] = el.value.toLowerCase();
+
+    const data = getFormData(form);
+
+    const parse = await creationalGuestSchema.safeParseAsync(data);
+
+    if (!parse.success) {
+      console.log(parse.error.errors);
+    }
+
+    if (parse.success) {
+      const response = await fetch(
+        `http://127.0.0.1:8000/hospedes/${parse.data.document}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(parse.data),
         }
+      );
+
+      if (response.status === 200) {
+        window.location.href = "/hospedes";
       }
     }
-    console.log(data);
-    // const response = await fetch("http://127.0.0.1:8000/hospedes", {
-    //   method: "PUT",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(data),
-    // });
-
-    // if (response.status === 201) {
-    //   window.location.href = "/hospedes";
-    // }
   });
 
   const deleteButton = document.getElementById(
