@@ -7,9 +7,9 @@ import TextInput from "../../components/TextInput.astro";
 import Layout from "../../layouts/Layout.astro";
 
 export const getStaticPaths = (async () => {
-  const response = await fetch("http://127.0.0.1:5000/api/hospedes");
-  const data: any[] = await response.json();
-  const paths = data.map((element) => {
+  const response = await fetch("http://127.0.0.1:8000/hospedes");
+  const data: any = await response.json();
+  const paths = data["guests"].map((element: any) => {
     return { params: { document: element["document"] } };
   });
 
@@ -18,9 +18,7 @@ export const getStaticPaths = (async () => {
 
 const { document } = Astro.params;
 
-const guestResponse = await fetch(
-  `http://127.0.0.1:5000/api/hospedes/${document}`
-);
+const guestResponse = await fetch(`http://127.0.0.1:8000/hospedes/${document}`);
 const data = await guestResponse.json();
 ---
 
