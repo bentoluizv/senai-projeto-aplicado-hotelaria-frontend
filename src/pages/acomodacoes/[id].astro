@@ -1,18 +1,16 @@
 ---
 import type { GetStaticPaths } from "astro";
-import ErrorAlert from "../../components/ErrorAlert.astro";
+import CheckboxInput from "../../components/CheckboxInput.astro";
 import Form from "../../components/Form.astro";
+import NumberInputSmall from "../../components/NumberInputSmall.astro";
 import TextInput from "../../components/TextInput.astro";
 import Layout from "../../layouts/Layout.astro";
-import NumberInputSmall from "../../components/NumberInputSmall.astro";
-import CheckboxInput from "../../components/CheckboxInput.astro";
 import { accommodationSchema } from "../../schemas/schemas";
-import { formDataToObject } from "astro:actions";
 
 export const getStaticPaths = (async () => {
-  const response = await fetch("http://127.0.0.1:5000/api/acomodacoes");
-  const data: any[] = await response.json();
-  const paths = data.map((element) => {
+  const response = await fetch("http://127.0.0.1:8000/acomodacoes");
+  const data: any = await response.json();
+  const paths = data["accommodations"].map((element: any) => {
     return { params: { id: element["id"] } };
   });
 
@@ -22,78 +20,79 @@ export const getStaticPaths = (async () => {
 const { id } = Astro.params;
 
 const accommodationResponse = await fetch(
-  `http://127.0.0.1:5000/api/acomodacoes/${id}`
+  `http://127.0.0.1:8000/acomodacoes/${id}`
 );
 const data = await accommodationResponse.json();
 
-const parsedData = await accommodationSchema.safeParseAsync(data);
+const accommodation = await accommodationSchema.parseAsync(data);
 
-if (!parsedData.success) {
-  throw new Error(parsedData.error.message);
-}
-
-const response = await fetch("http://127.0.0.1:5000/api/amenities");
-const amenities = await response.json();
-const formData = {
-  id: String(parsedData.data.id as number),
-  createdAt: parsedData.data.created_at as string,
-  name: parsedData.data.name,
-  status: parsedData.data.status as string,
-  totalGuests: String(parsedData.data.total_guests),
-  singleBeds: String(parsedData.data.single_beds),
-  doubleBeds: String(parsedData.data.double_beds),
-  minNights: String(parsedData.data.min_nights),
-  price: String(parsedData.data.price),
-  amenities: parsedData.data.amenities,
-};
+const response = await fetch("http://127.0.0.1:8000/amenities");
+const amenties_data = await response.json();
+const amenities: { id: number; name: string }[] = amenties_data["amenities"];
 ---
 
 <Layout>
   <Form id="update-accommodation-form">
     <div slot="inputs" class="flex flex-col gap-6">
       <div class="flex justify-between">
-        <TextInput disabled id="id" label="Id" value={String(formData.id)} />
+        <TextInput
+          disabled
+          id="id"
+          label="Id"
+          value={String(accommodation.id)}
+        />
         <TextInput
           disabled
           id="created_at"
           label="Criado em"
-          value={formData.createdAt}
+          value={accommodation.created_at}
         />
       </div>
-      <TextInput id="name" label="Nome" value={formData.name} />
-      <TextInput id="status" label="Status" value={formData.status} />
+      <TextInput id="name" label="Nome" value={accommodation.name} />
+      <TextInput id="status" label="Status" value={accommodation.status} />
       <div class="flex gap-4">
         <NumberInputSmall
           id="min_nights"
           label="Min. Noites"
-          value={formData.minNights}
+          value={accommodation.min_nights}
         />
         <NumberInputSmall
           id="total_guests"
           label="Max. Hospedes"
-          value={formData.totalGuests}
+          value={accommodation.total_guests}
         />
         <NumberInputSmall
           id="single_beds"
           label="Cama Solteiro"
-          value={formData.singleBeds}
+          value={accommodation.single_beds}
         />
         <NumberInputSmall
           id="double_beds"
           label="Cama Casal"
-          value={formData.doubleBeds}
+          value={accommodation.double_beds}
         />
-        <NumberInputSmall id="price" label="Preço" value={formData.price} />
+        <NumberInputSmall
+          id="price"
+          label="Preço"
+          value={accommodation.price}
+        />
       </div>
       <div
         class="amenities-list w-full h-[120px] flex p-2 justify-between flex-wrap">
         {
-          amenities.map(({ amenitie }: { amenitie: string }) => {
-            const amenities = formData.amenities;
-            if (amenities.includes(amenitie)) {
-              return <CheckboxInput id={amenitie} label={amenitie} checked />;
-            }
-            return <CheckboxInput id={amenitie} label={amenitie} />;
+          amenities.map((amenitie) => {
+            const isSelected = accommodation.amenities.find(
+              (selectedAmenitie) => selectedAmenitie.name == amenitie.name
+            );
+            return isSelected ? (
+              <CheckboxInput
+                id={String(amenitie.id)}
+                label={amenitie.name}
+                checked
+              />
+            ) : (
+              <CheckboxInput id={String(amenitie.id)} label={amenitie.name} />
+            );
           })
         }
       </div>
@@ -116,12 +115,9 @@ const formData = {
       </div>
     </div>
   </Form>
-  <ErrorAlert id="bad-request-err-modal" />
-  <ErrorAlert id="not-found-err-modal" />
-  <ErrorAlert id="failed-parse-data-err-modal" />
 </Layout>
 
-<script>
+<!-- <script>
   import { accommodationSchema } from "../../schemas/schemas";
 
   const form = document.getElementById(
@@ -280,4 +276,4 @@ const formData = {
       window.location.href = "/acomodacoes";
     }
   });
-</script>
+</script> -->
