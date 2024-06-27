@@ -42,8 +42,8 @@ export const accommodationSchema = z.object({
     .string()
     .trim()
     .transform((datetime) => new Date(datetime).toLocaleString()),
-  name: z.string().trim(),
-  status: z.string().trim(),
+  name: z.coerce.string().trim(),
+  status: z.coerce.string().trim(),
   total_guests: z.coerce.number().min(1),
   single_beds: z.coerce.number().min(0),
   double_beds: z.coerce.number().min(0),
@@ -51,8 +51,8 @@ export const accommodationSchema = z.object({
   price: z.coerce.number().min(0),
   amenities: z.array(
     z.object({
-      id: z.string().trim(),
-      name: z.string().trim(),
+      id: z.coerce.string().trim(),
+      name: z.coerce.string().trim(),
     })
   ),
 });
