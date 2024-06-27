@@ -1,5 +1,4 @@
 ---
-import ErrorAlert from "../../components/ErrorAlert.astro";
 import Form from "../../components/Form.astro";
 import SelectInput from "../../components/SelectInput.astro";
 import TextInput from "../../components/TextInput.astro";
@@ -15,19 +14,12 @@ const countries = [
 
 <Layout>
   <Form id="new-guest-form">
-    <div slot="inputs" class="flex flex-col">
-      <div class="flex w-full">
-        <SelectInput id="document_type" label="Tipo" options={["CPF"]} />
-        <TextInput id="document" label="Documento" />
-      </div>
-      <div class="flex">
-        <TextInput id="name" label="Nome" />
-        <TextInput id="surname" label="Sobrenome" />
-      </div>
-      <div class="flex">
-        <SelectInput id="country" label="País" options={countries} />
-        <TextInput id="phone" label="Telefone" />
-      </div>
+    <div slot="inputs" class="flex flex-col max-w-lg mx-auto">
+      <TextInput id="document" label="Documento" />
+      <TextInput id="name" label="Nome" />
+      <TextInput id="surname" label="Sobrenome" />
+      <SelectInput id="country" label="País" options={countries} />
+      <TextInput id="phone" label="Telefone" />
     </div>
     <div slot="buttons" class="flex flex-col w-full items-center p-16">
       <button
@@ -37,57 +29,38 @@ const countries = [
       >
     </div>
   </Form>
-  <ErrorAlert id="errorAlert" />
 </Layout>
 
 <script>
+  import { getFormData } from "../../utils/getFormData";
+  import { creationalGuestSchema } from "../../schemas/schemas";
   const form = document.getElementById("new-guest-form") as HTMLFormElement;
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
-    const data: any = {};
-    for (const el of form.elements) {
-      if (el instanceof HTMLSelectElement || el instanceof HTMLInputElement) {
-        if (el.id == "document") {
-          data[el.id] = el.value.replaceAll(".", "").replaceAll("-", "");
-        } else {
-          data[el.id] = el.value.toLowerCase();
-        }
-      }
+
+    const formData = getFormData(form);
+    const parse = await creationalGuestSchema.safeParseAsync(formData);
+
+    if (parse.success) {
+      console.log(parse.data);
+    } else {
+      console.log(parse.error.errors);
     }
 
-    const response = await fetch(
-      "http://127.0.0.1:5000/api/hospedes/cadastro",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      }
-    );
-
-    if (response.status === 400) {
-      const errorModal = document.getElementById(
-        "errorAlert"
-      ) as HTMLDialogElement;
-      const p = document.getElementById("text-content") as HTMLParagraphElement;
-      p.textContent =
-        "Algum campo do formulário está inválido, verifique novamente e tente  de novo";
-      errorModal.showModal();
-    }
-
-    if (response.status === 409) {
-      const errorModal = document.getElementById(
-        "errorAlert"
-      ) as HTMLDialogElement;
-      const p = document.getElementById("text-content") as HTMLParagraphElement;
-      p.textContent = "Já existe um hóspede com esse documento registrado";
-      errorModal.showModal();
-    }
+    const response = await fetch("http://127.0.0.1:8000/hospedes", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
 
     if (response.status === 201) {
       window.location.href = "/hospedes";
+    } else {
+      const data = await response.json();
+      console.log(response.status, data);
     }
   });
 </script>
