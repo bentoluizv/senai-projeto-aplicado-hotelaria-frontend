@@ -1,0 +1,24 @@
+---
+const response = await fetch(
+  "https://servicodados.ibge.gov.br/api/v1/paises/{paises}"
+);
+const data = await response.json();
+const countries = [
+  ...new Set(data.map((country: any) => country.nome.abreviado)),
+] as string[];
+---
+
+<div class="flex w-full flex-col p-2">
+  <label for="country_select">País</label>
+  <select
+    class="appearance-none p-2 border border-zinc-300 rounded"
+    name="country_select"
+    id="country_select">
+    <option selected disabled>Selecione</option>
+    {
+      countries.map((country) => {
+        return <option class="country">{country}</option>;
+      })
+    }
+  </select>
+</div>
