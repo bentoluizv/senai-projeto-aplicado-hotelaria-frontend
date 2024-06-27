@@ -18,7 +18,7 @@ const { id, label, options, disabled } = Astro.props;
     {disabled}>
     <option selected disabled>Selecione</option>
     {
-      options.map((option, index) => {
+      options.map((option) => {
         return <option>{option}</option>;
       })
     }
