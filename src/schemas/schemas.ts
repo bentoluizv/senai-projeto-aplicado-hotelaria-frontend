@@ -13,6 +13,7 @@ export const guestSchema = z.object({
   phone: z
     .string()
     .trim()
+    .min(10)
     .transform((phone) => formatPhoneNumber(phone)),
 });
 
@@ -27,12 +28,13 @@ export const creationalGuestSchema = z.object({
   phone: z
     .string()
     .trim()
+    .min(10)
     .transform((phone) =>
       phone
         .replaceAll(" ", "")
         .replaceAll("-", "")
         .replaceAll("(", "")
-        .replaceAll(")", " ")
+        .replaceAll(")", "")
     ),
 });
 
