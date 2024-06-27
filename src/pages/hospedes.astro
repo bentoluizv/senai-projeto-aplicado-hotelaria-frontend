@@ -3,7 +3,7 @@ import Table from "../components/Table.astro";
 import Layout from "../layouts/Layout.astro";
 import { guestSchema } from "../schemas/schemas";
 
-const response = await fetch("http://127.0.0.1:5000/api/hospedes");
+const response = await fetch("http://127.0.0.1:8000/hospedes");
 const data = await response.json();
 const parsedData = await guestSchema.array().safeParseAsync(data);
 
