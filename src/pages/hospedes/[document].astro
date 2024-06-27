@@ -1,10 +1,9 @@
 ---
 import type { GetStaticPaths } from "astro";
-import ErrorAlert from "../../components/ErrorAlert.astro";
 import Form from "../../components/Form.astro";
-import SelectInput from "../../components/SelectInput.astro";
 import TextInput from "../../components/TextInput.astro";
 import Layout from "../../layouts/Layout.astro";
+import SelectCountryInput from "../../components/SelectCountryInput.astro";
 
 export const getStaticPaths = (async () => {
   const response = await fetch("http://127.0.0.1:8000/hospedes");
@@ -24,34 +23,17 @@ const data = await guestResponse.json();
 
 <Layout>
   <Form id="update-guest-form">
-    <div slot="inputs" class="flex flex-col">
-      <div class="flex w-full">
-        <SelectInput
-          id="document_type"
-          label="Tipo"
-          options={["CPF"]}
-          disabled
-        />
-        <TextInput
-          id="document"
-          label="Documento"
-          value={data.document}
-          disabled
-        />
-      </div>
-      <div class="flex">
-        <TextInput id="name" label="Nome" value={data.name} />
-        <TextInput id="surname" label="Sobrenome" value={data.surname} />
-      </div>
-      <div class="flex">
-        <SelectInput
-          id="country"
-          label="País"
-          options={[data.country]}
-          disabled
-        />
-        <TextInput id="phone" label="Telefone" value={data.phone} />
-      </div>
+    <div slot="inputs" class="flex flex-col w-full max-w-lg mx-auto">
+      <TextInput
+        id="document"
+        label="Documento"
+        value={data.document}
+        disabled
+      />
+      <TextInput id="name" label="Nome" value={data.name} />
+      <TextInput id="surname" label="Sobrenome" value={data.surname} />
+      <SelectCountryInput />
+      <TextInput id="phone" label="Telefone" value={data.phone} />
     </div>
     <div
       slot="buttons"
@@ -68,105 +50,52 @@ const data = await guestResponse.json();
       >
     </div>
   </Form>
-  <ErrorAlert id="bad-request-alert" />
-  <!-- <ErrorAlert
-    id="not-found-alert"
-    content="Já existe um hóspede cadastrado com esse documento"
-  />
-</Layout> -->
+</Layout>
 
-  <script>
-    const form = document.getElementById(
-      "update-guest-form"
-    ) as HTMLFormElement;
+<script>
+  const form = document.getElementById("update-guest-form") as HTMLFormElement;
 
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const data: any = {};
-      for (const el of form.elements) {
-        if (el instanceof HTMLSelectElement || el instanceof HTMLInputElement) {
-          if (el.id == "document") {
-            data[el.id] = el.value.replaceAll(".", "").replaceAll("-", "");
-          } else {
-            data[el.id] = el.value.toLowerCase();
-          }
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const data: any = {};
+    for (const el of form.elements) {
+      if (el instanceof HTMLSelectElement || el instanceof HTMLInputElement) {
+        if (el.id == "document") {
+          data[el.id] = el.value.replaceAll(".", "").replaceAll("-", "");
+        } else {
+          data[el.id] = el.value.toLowerCase();
         }
       }
+    }
+    console.log(data);
+    // const response = await fetch("http://127.0.0.1:8000/hospedes", {
+    //   method: "PUT",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify(data),
+    // });
 
-      const response = await fetch("http://127.0.0.1:5000/api/hospedes", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+    // if (response.status === 201) {
+    //   window.location.href = "/hospedes";
+    // }
+  });
 
-      if (response.status === 400) {
-        const errorModal = document.getElementById(
-          "errorAlert"
-        ) as HTMLDialogElement;
-        const p = document.getElementById(
-          "text-content"
-        ) as HTMLParagraphElement;
-        p.textContent =
-          "Algum campo do formulário está inválido, verifique novamente e tente  de novo";
-        errorModal.showModal();
-      }
+  const deleteButton = document.getElementById(
+    "delete_button"
+  ) as HTMLButtonElement;
 
-      if (response.status === 404) {
-        const errorModal = document.getElementById(
-          "errorAlert"
-        ) as HTMLDialogElement;
-        const p = document.getElementById(
-          "text-content"
-        ) as HTMLParagraphElement;
-        p.textContent = "Hóspede não cadastrado";
-        errorModal.showModal();
-      }
+  deleteButton.addEventListener("click", async () => {
+    const element = form.elements.namedItem("document") as HTMLInputElement;
+    const guestDocument = element.value;
 
-      if (response.status === 201) {
-        window.location.href = "/hospedes";
-      }
-    });
+    const response = await fetch(
+      `http://127.0.0.1:8000/hospedes/${guestDocument}`,
+      { method: "DELETE" }
+    );
 
-    const deleteButton = document.getElementById(
-      "delete_button"
-    ) as HTMLButtonElement;
-
-    deleteButton.addEventListener("click", async () => {
-      const element = form.elements.namedItem("document") as HTMLInputElement;
-      const guestDocument = element.value;
-
-      const response = await fetch(
-        `http://127.0.0.1:5000/api/hospedes/${guestDocument}`,
-        { method: "DELETE" }
-      );
-      if (response.status === 400) {
-        const errorModal = document.getElementById(
-          "errorAlert"
-        ) as HTMLDialogElement;
-        const p = document.getElementById(
-          "text-content"
-        ) as HTMLParagraphElement;
-        p.textContent =
-          "Algum campo do formulário está inválido, verifique novamente e tente  de novo";
-        errorModal.showModal();
-      }
-
-      if (response.status === 404) {
-        const errorModal = document.getElementById(
-          "errorAlert"
-        ) as HTMLDialogElement;
-        const p = document.getElementById(
-          "text-content"
-        ) as HTMLParagraphElement;
-        p.textContent = "Hóspede não cadastrado";
-        errorModal.showModal();
-      }
-
-      if (response.status === 200) {
-        window.location.href = "/hospedes";
-      }
-    });
-  </script>
-</Layout>
+    if (response.status === 204) {
+      window.location.href = "/hospedes";
+    }
+  });
+</script>
