@@ -7,34 +7,28 @@ const response = await fetch("http://127.0.0.1:8000/acomodacoes");
 const data = await response.json();
 const parsedData = await accommodationSchema
   .array()
-  .safeParseAsync(data["accommodations"]);
+  .parseAsync(data["accommodations"]);
 
-if (!parsedData.success) {
-  throw new Error(parsedData.error.message);
-}
-
-const tableData = parsedData.data.map(({ id, name, status, price }) => {
+const tableData = parsedData.map((accommodation) => {
   return {
-    id: String(id),
-    name,
-    status,
+    id: String(accommodation.id),
+    name: accommodation.name,
+    status: accommodation.status,
     price: Intl.NumberFormat("pt-BR", {
       style: "currency",
       currency: "BRL",
-    }).format(price),
+    }).format(accommodation.price),
   };
 });
+
+let columns = ["ID", "Nome", "Status", "Preço"];
 ---
 
 <Layout>
   <div class="flex flex-col items-center">
     {
       tableData.length > 0 && (
-        <Table
-          id="accommodation-table"
-          columns={Object.keys(tableData[0])}
-          data={tableData}
-        />
+        <Table id="accommodation-table" columns={columns} data={tableData} />
       )
     }
     {
