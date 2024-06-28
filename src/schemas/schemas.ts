@@ -86,14 +86,14 @@ export const creationalAccommodationSchema = z.object({
 
 export const bookingSchema = z.object({
   uuid: z.string().uuid(),
-  createdAt: z
+  created_at: z
     .string()
     .transform((datetime) => new Date(datetime).toLocaleString()),
   status: z.string(),
-  checkIn: z
+  check_in: z
     .string()
     .transform((datetime) => new Date(datetime).toLocaleString()),
-  checkOut: z
+  check_out: z
     .string()
     .transform((datetime) => new Date(datetime).toLocaleString()),
   guest: guestSchema,
