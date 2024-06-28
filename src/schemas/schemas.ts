@@ -86,6 +86,7 @@ export const creationalAccommodationSchema = z.object({
 
 export const bookingSchema = z.object({
   uuid: z.string().uuid(),
+  locator: z.coerce.string(),
   created_at: z
     .string()
     .transform((datetime) => new Date(datetime).toLocaleString()),
@@ -108,6 +109,16 @@ export const creationalBookingSchema = z.object({
   check_in: z.string().transform((date) => new Date(date).toISOString()),
   check_out: z.string().transform((date) => new Date(date).toISOString()),
   guest_document: z.string(), //TODO: Validação de CPF
+  accommodation_id: z.coerce.number(),
+  budget: z.coerce.number().min(0),
+});
+
+export const updateBookingSchema = z.object({
+  status: z.string(),
+  locator: z.string(),
+  check_in: z.string().transform((date) => new Date(date).toISOString()),
+  check_out: z.string().transform((date) => new Date(date).toISOString()),
+  guest_document: z.string(),
   accommodation_id: z.coerce.number(),
   budget: z.coerce.number().min(0),
 });
