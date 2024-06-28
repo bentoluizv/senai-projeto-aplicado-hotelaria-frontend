@@ -3,39 +3,43 @@ import Table from "../components/Table.astro";
 import Layout from "../layouts/Layout.astro";
 import { bookingSchema } from "../schemas/schemas";
 
-const response = await fetch("http://127.0.0.1:5000/api/reservas");
+const response = await fetch("http://127.0.0.1:8000/reservas");
 const data = await response.json();
 
-console.log(data);
-const tableData = data.map((element: any) => {
+const bookings = await bookingSchema.array().parseAsync(data["bookings"]);
+
+const tableData = bookings.map((bookinng) => {
   return {
-    uuid: element.uuid,
-    createdAt: element.created_at,
-    status: element.status,
-    checkIn: element.check_in,
-    checkOut: element.check_out,
-    guestName: element.guest_name,
-    guestPhone: element.guest_phone,
-    accommodationName: element.accommodation_name,
-    accommodationPrice: element.accommodation_price,
-    budget: element.total,
-    totalNights: element.total_nights,
+    uuid: bookinng.uuid,
+    status: bookinng.status,
+    check_in: bookinng.check_in,
+    chec_out: bookinng.check_out,
+    guest_name: bookinng.guest.name,
+    accommodation_name: bookinng.accommodation.name,
+    budget: Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(bookinng.budget),
   };
 });
 
-const parsedTableData = await bookingSchema.array().parseAsync(tableData);
+let columns = [
+  "Status",
+  "Check In",
+  "Check Out",
+  "Hóspede",
+  "Acomodação",
+  "Valor",
+];
 
-let columns: any[] = [];
-if (parsedTableData.length > 0) {
-  columns.push(Object.keys(parsedTableData[0]));
-}
+console.log;
 ---
 
 <Layout>
   <div class="flex flex-col items-center">
     {
       columns.length > 0 && (
-        <Table id="booking-table" columns={columns[0]} data={parsedTableData} />
+        <Table id="booking-table" columns={columns} data={tableData} />
       )
     }
     {columns.length == 0 && <p>Nenhum hóspede encontrado no banco de dados</p>}
