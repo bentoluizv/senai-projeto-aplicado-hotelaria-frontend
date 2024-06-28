@@ -81,6 +81,7 @@ const today = new Date().toISOString().split("T")[0];
 
 <script>
   import { getFormData } from "../../utils/getFormData";
+  import { creationalBookingSchema } from "../../schemas/schemas";
 
   const inputGuestDocument = document.getElementById(
     "document"
@@ -184,23 +185,40 @@ const today = new Date().toISOString().split("T")[0];
   newBookingForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const formData = getFormData(newBookingForm);
-    const budget = (document.getElementById("budget") as HTMLInputElement)
-      .value;
-    const data = { budget, ...formData };
+    const budget = (document.getElementById("budget") as HTMLInputElement).value
+      .replace("R$", "")
+      .replace(",", ".")
+      .trim();
 
-    console.log(data);
+    const accommodationId = selectAccommodationElement.selectedIndex;
 
-    // const response = await fetch("http://127.0.0.1:8000/reservas/cadastro", {
-    //   body: JSON.stringify(formData),
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    // });
+    const data = {
+      check_in: formData["check_in"],
+      check_out: formData["check_out"],
+      guest_document: formData["document"],
+      accommodation_id: accommodationId,
+      budget,
+    };
 
-    // if (response.status === 201) {
-    //   window.location.href = "/reservas";
-    // } else {
-    //   const data = response.json();
-    //   console.log(data);
-    // }
+    const parse = await creationalBookingSchema.safeParseAsync(data);
+
+    if (!parse.success) {
+      console.log(parse.error.errors);
+    }
+
+    if (parse.success) {
+      const response = await fetch("http://127.0.0.1:8000/reservas", {
+        body: JSON.stringify(parse.data),
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (response.status === 201) {
+        window.location.href = "/reservas";
+      } else {
+        const data = await response.json();
+        console.log(data);
+      }
+    }
   });
 </script>
