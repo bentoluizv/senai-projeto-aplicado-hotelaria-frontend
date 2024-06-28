@@ -3,6 +3,7 @@ import DateInput from "../../components/DateInput.astro";
 import SelectInput from "../../components/SelectInput.astro";
 import SmallForm from "../../components/SmallForm.astro";
 import TextInput from "../../components/TextInput.astro";
+import TextInputSmall from "../../components/TextInputSmall.astro";
 import Layout from "../../layouts/Layout.astro";
 import { accommodationSchema } from "../../schemas/schemas";
 
@@ -62,18 +63,25 @@ const today = new Date().toISOString().split("T")[0];
         <DateInput required id="check_out" label="Check Out" />
       </div>
     </div>
-    <div slot="buttons" class="p-4 flex flex-col w-full max-w-md mx-auto">
-      <button
-        id="make_booking_btn"
-        type="submit"
-        class="bg-green-600 hover:bg-green-400 text-white hover:text-zinc-800 font-bold px-12 py-2 rounded-md mb-2 w-full">
-        Revisão
-      </button>
+    <div
+      slot="buttons"
+      class="px-4 py-12 w-full flex flex-col items-end border-b border-gray-300">
+      <div class="flex gap-6">
+        <TextInput disabled id="budget" label="Total" />
+        <button
+          id="make_booking_btn"
+          type="submit"
+          class="bg-green-600 hover:bg-green-400 text-white hover:text-zinc-800 font-bold px-24 py-2 rounded-md mb-2 w-full h-12 self-end">
+          Revisão
+        </button>
+      </div>
     </div>
   </SmallForm>
 </Layout>
 
 <script>
+  import { getFormData } from "../../utils/getFormData";
+
   const inputGuestDocument = document.getElementById(
     "document"
   ) as HTMLButtonElement;
@@ -125,6 +133,8 @@ const today = new Date().toISOString().split("T")[0];
       style: "currency",
     }).format(Number(rawPrice));
     priceInput.value = formatedPrice;
+
+    (document.getElementById("budget") as HTMLInputElement).value = "";
   });
 
   const checkInSelect = document.getElementById("check_in") as HTMLInputElement;
@@ -141,39 +151,44 @@ const today = new Date().toISOString().split("T")[0];
     checkOutSelect.setAttribute("min", minCheckOut);
   });
 
+  checkOutSelect.addEventListener("change", () => {
+    const budgetInput = document.getElementById("budget") as HTMLInputElement;
+    const price = (document.getElementById("price") as HTMLInputElement).value;
+
+    const checkIn = checkInSelect.valueAsDate;
+    const checkOut = checkOutSelect.valueAsDate;
+
+    if (checkIn && checkOut) {
+      if (selectAccommodationElement.selectedIndex == 0) {
+        console.log("Please select a accommodation");
+      }
+      const diff = checkOut.getTime() - checkIn.getTime();
+      const diffInDays = diff / (1000 * 60 * 60 * 24);
+      const total =
+        Number(price.replaceAll("R$", "").replace(",", ".").trim()) *
+        diffInDays;
+
+      const budget = Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      }).format(total);
+
+      budgetInput.value = budget;
+    }
+  });
+
   const newBookingForm = document.getElementById(
     "new-booking-form"
   ) as HTMLFormElement;
 
   newBookingForm.addEventListener("submit", async (event) => {
     event.preventDefault();
+    const formData = getFormData(newBookingForm);
+    const budget = (document.getElementById("budget") as HTMLInputElement)
+      .value;
+    const data = { budget, ...formData };
 
-    console.log("Aqui");
-    // const { accommodation, checkIn, checkOut, guestData } = {
-    //   guestData: form.elements.namedItem("document") as HTMLInputElement,
-    //   accommodation: form.elements.namedItem(
-    //     "accommodations"
-    //   ) as HTMLSelectElement,
-    //   checkIn: form.elements.namedItem("check_in") as HTMLInputElement,
-    //   checkOut: form.elements.namedItem("check_out") as HTMLInputElement,
-    // };
-
-    // const [year, month, day] = checkIn.value
-    //   .split("-")
-    //   .map((value) => Number(value));
-    // const [year2, month2, day2] = checkOut.value
-    //   .split("-")
-    //   .map((value) => Number(value));
-
-    // const formData = {
-    //   guest_document: guestData.value
-    //     .trim()
-    //     .replaceAll(".", "")
-    //     .replace("-", ""),
-    //   accommodation_id: accommodation.selectedIndex,
-    //   check_in: new Date(year, month, day).toISOString(),
-    //   check_out: new Date(year2, month2, day2).toISOString(),
-    // };
+    console.log(data);
 
     // const response = await fetch("http://127.0.0.1:8000/reservas/cadastro", {
     //   body: JSON.stringify(formData),
