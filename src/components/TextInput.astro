@@ -4,13 +4,14 @@ type Props = {
   label: string;
   value?: string;
   disabled?: boolean;
+  hidden?: boolean;
 };
 
-const { id, label, value, disabled } = Astro.props;
+const { id, label, value, disabled, hidden } = Astro.props;
 ---
 
 <div class="flex flex-col p-2">
-  <label for={id}>{label}</label>
+  <label hidden={hidden} for={id}>{label}</label>
   <input
     class="appearance-none p-2 border border-zinc-300 rounded"
     type="text"
@@ -19,5 +20,6 @@ const { id, label, value, disabled } = Astro.props;
     required
     value={value}
     disabled={disabled}
+    hidden={hidden}
   />
 </div>

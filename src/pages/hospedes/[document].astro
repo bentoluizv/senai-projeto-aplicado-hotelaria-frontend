@@ -26,7 +26,12 @@ const guest = await guestSchema.parseAsync(data);
 <Layout>
   <Form id="update-guest-form">
     <div slot="inputs" class="flex flex-col w-full max-w-lg mx-auto">
-      <TextInput id="created_at" label="Criado em" value={guest.created_at} />
+      <TextInput
+        disabled
+        id="created_at"
+        label="Criado em"
+        value={guest.created_at}
+      />
       <TextInput id="document" label="Documento" value={guest.document} />
       <TextInput id="name" label="Nome" value={guest.name} />
       <TextInput id="surname" label="Sobrenome" value={guest.surname} />
