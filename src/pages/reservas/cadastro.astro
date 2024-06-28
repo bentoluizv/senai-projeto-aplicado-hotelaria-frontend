@@ -1,140 +1,116 @@
 ---
 import DateInput from "../../components/DateInput.astro";
-import ErrorAlert from "../../components/ErrorAlert.astro";
 import SelectInput from "../../components/SelectInput.astro";
 import SmallForm from "../../components/SmallForm.astro";
 import TextInput from "../../components/TextInput.astro";
 import Layout from "../../layouts/Layout.astro";
 import { accommodationSchema } from "../../schemas/schemas";
 
-const response = await fetch("http://127.0.0.1:5000/api/acomodacoes");
+const response = await fetch("http://127.0.0.1:8000/acomodacoes");
 const data = await response.json();
 
-const accommodations = await accommodationSchema.array().parseAsync(data);
+const accommodations = await accommodationSchema
+  .array()
+  .parseAsync(data["accommodations"]);
 const avaliableAccommodationsName = accommodations
   .filter(
     (accommodation) =>
-      accommodation.status == "Disponível" ||
-      accommodation.status == "Aguardando Limpeza"
+      accommodation.status == "Disponivel" ||
+      accommodation.status == "Aguardando Limpeza" ||
+      accommodation.status == "Disponível"
   )
   .map(({ name }) => name);
 
-const today = new Date();
-
-const fmtToday = new Date().toISOString().split("T")[0];
-
-const fmtTomorrow = new Date(
-  today.getFullYear(),
-  today.getMonth(),
-  today.getDate() + 1
-)
-  .toISOString()
-  .split("T")[0];
+const today = new Date().toISOString().split("T")[0];
 ---
 
 <Layout>
   <SmallForm id="new-booking-form">
     <div slot="inputs" class="flex flex-col items-center grow">
-      <div class="w-full flex p-4">
-        <SelectInput id="document_type" label="Tipo" options={["CPF"]} />
-        <TextInput id="document" label="Documento" />
-        <button
-          id="search_guest_btn"
-          type="button"
-          class="bg-blue-500 hover:bg-blue-700 text-white font-bold px-12 py-2 rounded-md self-end mb-2">
-          Buscar
-        </button>
-      </div>
-
-      <div class="w-full grid grid-cols-2 p-4">
-        <TextInput id="guest_name" label="Nome" />
-        <TextInput id="guest_phone" label="Telefone" />
-      </div>
-
-      <div class="w-full grid grid-cols-3 p-4 gap-4">
-        <SelectInput
-          id="accommodations"
-          label="Acomodações"
-          options={avaliableAccommodationsName}
-        />
-        <DateInput id="check_in" label="Check In" min={fmtToday} />
-        <DateInput id="check_out" label="Check Out" min={fmtTomorrow} />
-      </div>
-
-      <div class="w-full grid grid-cols-5 p-4 gap-4">
-        <TextInput id="total_guests" label="Max. Hóspedes" />
-        <TextInput id="min_nights" label="Min. Noites" />
-        <TextInput id="single_beds" label="Cama Solteiro" />
-        <TextInput id="double_beds" label="Cama Casal" />
-        <TextInput id="price" label="Preço" />
-      </div>
-
-      <div class="w-full grid grid-cols-3 p-4 gap-4">
-        <TextInput id="amount" label="Total" />
-        <TextInput id="total_nights" label="Total de noites" />
-        <div class="flex flex-col w-full">
-          <button
-            id="calculate_fees_btn"
-            type="button"
-            class="bg-zinc-200 hover:bg-zinc-300 border border-zinc-600 text-zinc-700 font-bold px-12 py-2 rounded-md mb-2 w-full">
-            Simular
-          </button>
-          <button
-            id="make_booking_btn"
-            type="submit"
-            class="bg-green-600 hover:bg-green-400 text-white hover:text-zinc-800 font-bold px-12 py-2 rounded-md mb-2 w-full">
-            Fazer Reserva
-          </button>
+      <div class="px-4 py-12 w-full border-b border-gray-300 grid grid-cols-8">
+        <div class="col-span-2">
+          <TextInput id="document" label="Documento" />
+        </div>
+        <div class="col-span-3">
+          <TextInput disabled id="guest_name" label="Nome" />
+        </div>
+        <div class="col-span-3">
+          <TextInput disabled id="guest_phone" label="Telefone" />
         </div>
       </div>
+
+      <div class="px-4 py-12 flex gap-36 border-b border-gray-300">
+        <div class="w-full grid">
+          <SelectInput
+            id="select_accommodation"
+            label="Acomodações"
+            options={avaliableAccommodationsName}
+          />
+        </div>
+        <div class="w-full grid grid-cols-2 grid-rows-3">
+          <TextInput disabled id="total_guests" label="Max. Hóspedes" />
+          <TextInput disabled id="min_nights" label="Min. Noites" />
+          <TextInput disabled id="single_beds" label="Cama Solteiro" />
+          <TextInput disabled id="double_beds" label="Cama Casal" />
+          <TextInput disabled id="price" label="Preço" />
+        </div>
+      </div>
+
+      <div
+        class="px-4 py-12 w-full grid grid-cols-2 gap-36 border-b border-gray-300">
+        <DateInput required id="check_in" label="Check In" min={today} />
+        <DateInput required id="check_out" label="Check Out" />
+      </div>
+    </div>
+    <div slot="buttons" class="p-4 flex flex-col w-full max-w-md mx-auto">
+      <button
+        id="make_booking_btn"
+        type="submit"
+        class="bg-green-600 hover:bg-green-400 text-white hover:text-zinc-800 font-bold px-12 py-2 rounded-md mb-2 w-full">
+        Revisão
+      </button>
     </div>
   </SmallForm>
 </Layout>
-<ErrorAlert id="errorAlert" />
 
 <script>
-  const searchButtonElement = document.getElementById(
-    "search_guest_btn"
+  const inputGuestDocument = document.getElementById(
+    "document"
   ) as HTMLButtonElement;
 
-  searchButtonElement.addEventListener("click", async (event) => {
-    const form = document.getElementById("new-booking-form") as HTMLFormElement;
-    const docInputElement = form.elements.namedItem(
-      "document"
-    ) as HTMLInputElement;
-    const doc = docInputElement.value
+  inputGuestDocument.addEventListener("change", async (event) => {
+    const doc = inputGuestDocument.value
       .trim()
       .replaceAll(".", "")
       .replace("-", "");
 
-    const nameInputElement = form.elements.namedItem(
-      "guest_name"
-    ) as HTMLInputElement;
+    const response = await fetch(`http://127.0.0.1:8000/hospedes/${doc}`);
 
-    const phoneInputElement = form.elements.namedItem(
-      "guest_phone"
-    ) as HTMLInputElement;
-
-    const response = await fetch(`http://127.0.0.1:5000/api/hospedes/${doc}`);
     if (response.status == 200) {
-      const { name, surname, phone } = await response.json();
-      nameInputElement.value = `${name} ${surname}`;
-      phoneInputElement.value = phone;
-    }
+      const data = await response.json();
 
-    if (response.status == 404) {
-      console.log("not found");
+      const inputGuestName = document.getElementById(
+        "guest_name"
+      ) as HTMLInputElement;
+      const inputGuestPhone = document.getElementById(
+        "guest_phone"
+      ) as HTMLInputElement;
+
+      inputGuestName.value = `${data.name} ${data.surname}`;
+      inputGuestPhone.value = data.phone;
+    } else {
+      const data = await response.json();
+      console.log(data);
     }
   });
 
   const selectAccommodationElement = document.getElementById(
-    "accommodations"
+    "select_accommodation"
   ) as HTMLSelectElement;
 
   selectAccommodationElement.addEventListener("change", async (event) => {
-    const select = event.target as HTMLSelectElement;
-    const id = select.selectedIndex;
-    const response = await fetch(`http://127.0.0.1:5000/api/acomodacoes/${id}`);
+    const id = selectAccommodationElement.selectedIndex;
+    const response = await fetch(`http://127.0.0.1:8000/acomodacoes/${id}`);
     const data = await response.json();
     for (const [key, value] of Object.entries(data)) {
       const element = document.getElementById(key);
@@ -142,9 +118,6 @@ const fmtTomorrow = new Date(
         element.value = value as string;
       }
     }
-    const accommodationContainer = document.getElementById(
-      "accommodation_container"
-    );
     const priceInput = document.getElementById("price") as HTMLInputElement;
     const rawPrice = priceInput.value;
     const formatedPrice = Intl.NumberFormat("pt-BR", {
@@ -154,60 +127,18 @@ const fmtTomorrow = new Date(
     priceInput.value = formatedPrice;
   });
 
-  const calculateFeesButton = document.getElementById(
-    "calculate_fees_btn"
-  ) as HTMLButtonElement;
+  const checkInSelect = document.getElementById("check_in") as HTMLInputElement;
+  const checkOutSelect = document.getElementById(
+    "check_out"
+  ) as HTMLInputElement;
 
-  calculateFeesButton.addEventListener("click", () => {
-    const form = document.getElementById("new-booking-form") as HTMLFormElement;
-    const checkIn = form.elements.namedItem("check_in") as HTMLInputElement;
-    const checkOut = form.elements.namedItem("check_out") as HTMLInputElement;
-    const price = form.elements.namedItem("price") as HTMLInputElement;
+  checkInSelect.addEventListener("change", () => {
+    const checkIn = new Date(checkInSelect.value);
+    const minCheckOut = new Date(checkIn.setDate(checkIn.getDate() + 2))
+      .toISOString()
+      .split("T")[0];
 
-    const [checkInYear, checkInMonth, checkInDay] = checkIn.value.split("-");
-    const [checkOutYear, checkOutMonth, checkOutDay] =
-      checkOut.value.split("-");
-
-    const checkInDate = new Date(
-      Number(checkInYear),
-      Number(checkInMonth),
-      Number(checkInDay)
-    );
-
-    const checkOutDate = new Date(
-      Number(checkOutYear),
-      Number(checkOutMonth),
-      Number(checkOutDay)
-    );
-
-    const checkInMs = checkInDate.getTime();
-    const checkOutMs = checkOutDate.getTime();
-    const diff = checkOutMs - checkInMs;
-
-    if (diff <= 0) {
-      console.log("Check out tem que ser depois do check in");
-    }
-
-    if (diff > 0) {
-      const dateDiff = diff / (1000 * 60 * 60 * 24);
-      const fmtPrice = Number(
-        price.value.replace("R$", "").replace(",", ".").trim()
-      );
-      const total = fmtPrice * dateDiff;
-
-      const totalAmountInput = document.getElementById(
-        "amount"
-      ) as HTMLInputElement;
-      const totalNightsInput = document.getElementById(
-        "total_nights"
-      ) as HTMLInputElement;
-
-      totalAmountInput.value = Intl.NumberFormat("pt-BR", {
-        currency: "BRL",
-        style: "currency",
-      }).format(total);
-      totalNightsInput.value = String(dateDiff);
-    }
+    checkOutSelect.setAttribute("min", minCheckOut);
   });
 
   const newBookingForm = document.getElementById(
@@ -216,63 +147,45 @@ const fmtTomorrow = new Date(
 
   newBookingForm.addEventListener("submit", async (event) => {
     event.preventDefault();
-    const form = event.target as HTMLFormElement;
-    const { accommodation, checkIn, checkOut, guestData } = {
-      guestData: form.elements.namedItem("document") as HTMLInputElement,
-      accommodation: form.elements.namedItem(
-        "accommodations"
-      ) as HTMLSelectElement,
-      checkIn: form.elements.namedItem("check_in") as HTMLInputElement,
-      checkOut: form.elements.namedItem("check_out") as HTMLInputElement,
-    };
 
-    const [year, month, day] = checkIn.value
-      .split("-")
-      .map((value) => Number(value));
-    const [year2, month2, day2] = checkOut.value
-      .split("-")
-      .map((value) => Number(value));
+    console.log("Aqui");
+    // const { accommodation, checkIn, checkOut, guestData } = {
+    //   guestData: form.elements.namedItem("document") as HTMLInputElement,
+    //   accommodation: form.elements.namedItem(
+    //     "accommodations"
+    //   ) as HTMLSelectElement,
+    //   checkIn: form.elements.namedItem("check_in") as HTMLInputElement,
+    //   checkOut: form.elements.namedItem("check_out") as HTMLInputElement,
+    // };
 
-    const formData = {
-      guest_document: guestData.value
-        .trim()
-        .replaceAll(".", "")
-        .replace("-", ""),
-      accommodation_id: accommodation.selectedIndex,
-      check_in: new Date(year, month, day).toISOString(),
-      check_out: new Date(year2, month2, day2).toISOString(),
-    };
+    // const [year, month, day] = checkIn.value
+    //   .split("-")
+    //   .map((value) => Number(value));
+    // const [year2, month2, day2] = checkOut.value
+    //   .split("-")
+    //   .map((value) => Number(value));
 
-    const response = await fetch(
-      "http://127.0.0.1:5000/api/reservas/cadastro",
-      {
-        body: JSON.stringify(formData),
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    // const formData = {
+    //   guest_document: guestData.value
+    //     .trim()
+    //     .replaceAll(".", "")
+    //     .replace("-", ""),
+    //   accommodation_id: accommodation.selectedIndex,
+    //   check_in: new Date(year, month, day).toISOString(),
+    //   check_out: new Date(year2, month2, day2).toISOString(),
+    // };
 
-    if (response.status === 400) {
-      const errorModal = document.getElementById(
-        "errorAlert"
-      ) as HTMLDialogElement;
-      const p = document.getElementById("text-content") as HTMLParagraphElement;
-      p.textContent =
-        "Algum campo do formulário está inválido, verifique novamente e tente  de novo";
-      errorModal.showModal();
-    }
+    // const response = await fetch("http://127.0.0.1:8000/reservas/cadastro", {
+    //   body: JSON.stringify(formData),
+    //   method: "POST",
+    //   headers: { "Content-Type": "application/json" },
+    // });
 
-    if (response.status === 409) {
-      const errorModal = document.getElementById(
-        "errorAlert"
-      ) as HTMLDialogElement;
-      const p = document.getElementById("text-content") as HTMLParagraphElement;
-      p.textContent = "Já existe uma reserva com esse uuid registrado";
-      errorModal.showModal();
-    }
-
-    if (response.status === 201) {
-      window.location.href = "/reservas";
-    }
+    // if (response.status === 201) {
+    //   window.location.href = "/reservas";
+    // } else {
+    //   const data = response.json();
+    //   console.log(data);
+    // }
   });
 </script>
