@@ -118,7 +118,7 @@ const amenities: { id: number; name: string }[] = amenties_data["amenities"];
 </Layout>
 
 <script>
-  import { accommodationSchema } from "../../schemas/schemas";
+  import { updateAccommodationSchema } from "../../schemas/schemas";
 
   const form = document.getElementById(
     "update-accommodation-form"
@@ -142,48 +142,31 @@ const amenities: { id: number; name: string }[] = amenties_data["amenities"];
     }
     data.amenities = amenities;
 
-    console.log(data);
+    const parse = await updateAccommodationSchema.safeParseAsync(data);
 
-    // const parsedData = await accommodationSchema.safeParseAsync(data);
+    if (!parse.success) {
+      console.log(parse.error.errors);
+    }
 
-    // if (parsedData.success) {
-    //   const {
-    //     id,
-    //     status,
-    //     created_at,
-    //     name,
-    //     total_guests,
-    //     single_beds,
-    //     double_beds,
-    //     min_nights,
-    //     amenities,
-    //     price,
-    //   } = parsedData.data;
-
-    //   const accommodationData = {
-    //     id,
-    //     status,
-    //     created_at,
-    //     name,
-    //     total_guests,
-    //     single_beds,
-    //     double_beds,
-    //     min_nights,
-    //     amenities,
-    //     price,
-    //   };
-
-    //   const response = await fetch("http://127.0.0.1:5000/api/acomodacoes", {
-    //     method: "PUT",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify(accommodationData),
-    //   });
-
-    //   if (response.status === 201) {
-    //     window.location.href = "/acomodacoes";
-    //   }
+    if (parse.success) {
+      console.log(parse.data);
+      const response = await fetch(
+        `http://127.0.0.1:8000/acomodacoes/${parse.data.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(parse.data),
+        }
+      );
+      if (response.status === 200) {
+        window.location.href = "/acomodacoes";
+      } else {
+        const data = await response.json();
+        console.log(data);
+      }
+    }
   });
 
   const deleteButton = document.getElementById(
@@ -193,8 +176,6 @@ const amenities: { id: number; name: string }[] = amenties_data["amenities"];
   deleteButton.addEventListener("click", async () => {
     const element = form.elements.namedItem("id") as HTMLInputElement;
     const accommodationId = element.value;
-
-    console.log(accommodationId);
 
     const response = await fetch(
       `http://127.0.0.1:8000/acomodacoes/${accommodationId}`,
