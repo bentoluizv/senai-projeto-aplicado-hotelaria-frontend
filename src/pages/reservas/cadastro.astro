@@ -71,7 +71,7 @@ const today = new Date().toISOString().split("T")[0];
           id="make_booking_btn"
           type="submit"
           class="bg-green-600 hover:bg-green-400 text-white hover:text-zinc-800 font-bold px-24 py-2 rounded-md mb-2 w-full h-12 self-end">
-          Revisão
+          Fazer Reserva
         </button>
       </div>
     </div>
@@ -186,6 +186,7 @@ const today = new Date().toISOString().split("T")[0];
     const formData = getFormData(newBookingForm);
     const budget = (document.getElementById("budget") as HTMLInputElement).value
       .replace("R$", "")
+      .replaceAll(".", "")
       .replace(",", ".")
       .trim();
 
