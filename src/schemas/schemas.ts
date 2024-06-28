@@ -101,6 +101,8 @@ export const bookingSchema = z.object({
   budget: z.coerce.number().min(0),
 });
 
+export type Booking = z.infer<typeof bookingSchema>;
+
 export const creationalBookingSchema = z.object({
   status: z.string(),
   check_in: z
