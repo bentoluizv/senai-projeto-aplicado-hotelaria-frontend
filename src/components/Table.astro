@@ -2,7 +2,7 @@
 type Props = {
   id: string;
   columns: string[];
-  data: { [key: string]: string }[];
+  data: { [key: string]: string | number | object }[];
 };
 
 const { id, columns, data } = Astro.props;
