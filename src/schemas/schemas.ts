@@ -104,13 +104,9 @@ export const bookingSchema = z.object({
 export type Booking = z.infer<typeof bookingSchema>;
 
 export const creationalBookingSchema = z.object({
-  status: z.string(),
-  check_in: z
-    .string()
-    .transform((datetime) => new Date(datetime).toLocaleString()),
-  check_out: z
-    .string()
-    .transform((datetime) => new Date(datetime).toLocaleString()),
+  status: z.string().default("Disponivel"),
+  check_in: z.string().transform((date) => new Date(date).toISOString()),
+  check_out: z.string().transform((date) => new Date(date).toISOString()),
   guest_document: z.string(), //TODO: Validação de CPF
   accommodation_id: z.coerce.number(),
   budget: z.coerce.number().min(0),
