@@ -115,7 +115,6 @@ export const creationalBookingSchema = z.object({
 
 export const updateBookingSchema = z.object({
   status: z.string(),
-  locator: z.string(),
   check_in: z.string().transform((date) => new Date(date).toISOString()),
   check_out: z.string().transform((date) => new Date(date).toISOString()),
   guest_document: z.string(),
