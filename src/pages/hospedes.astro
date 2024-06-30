@@ -51,9 +51,7 @@ let columns = ["Documento", "Nome", "País", "Telefone", "Criado em:"];
         <SelectCountryInput />
         <TextInput id="phone" label="Telefone" />
       </div>
-      <div
-        slot="buttons"
-        class="flex w-full items-center p-16 align-middle justify-center gap-6">
+      <div slot="buttons" class="w-full p-4 grid grid-cols-3 gap-8">
         <button
           id="update_button"
           class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-56"
@@ -64,6 +62,13 @@ let columns = ["Documento", "Nome", "País", "Telefone", "Criado em:"];
           class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-56"
           type="button">Excluir</button
         >
+        <a
+          href="/hospedes"
+          id="back_btn"
+          type="button"
+          class="bg-zinc-600 hover:bg-zinc-400 text-white hover:text-zinc-800 font-bold py-2 text-center rounded-md mb-2 w-full">
+          Voltar
+        </a>
       </div>
     </Form>
   </dialog>
