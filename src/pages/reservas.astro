@@ -1,5 +1,7 @@
 ---
+import SmallForm from "../components/SmallForm.astro";
 import Table from "../components/Table.astro";
+import TextInput from "../components/TextInput.astro";
 import Layout from "../layouts/Layout.astro";
 import { bookingSchema } from "../schemas/schemas";
 
@@ -48,23 +50,202 @@ let columns = [
       ></a
     >
   </div>
+  <dialog
+    id="booking_update_modal"
+    class="p-4 bg-amber-50 text-zinc-700 text-lg font-['Poppins']">
+    <SmallForm id="update-booking-form">
+      <div slot="inputs" class="flex flex-col items-center grow">
+        <TextInput hidden id="uuid" label="uuid" />
+        <div class="w-full grid grid-cols-3 p-4">
+          <TextInput disabled id="locator" label="Localizador" />
+          <TextInput disabled id="status" label="Status" />
+          <TextInput disabled id="budget" label="Valor" />
+        </div>
+        <div class="w-full grid grid-cols-3 p-4">
+          <TextInput disabled id="accommodation_id" label="Acomodação" />
+          <TextInput disabled id="guest_document" label="Documento" />
+          <TextInput disabled id="guest_name" label="Nome" />
+        </div>
+
+        <div class="w-full grid grid-cols-2 p-4 gap-4">
+          <TextInput disabled id="check_in" label="Check In" />
+          <TextInput disabled id="check_out" label="Check Out" />
+        </div>
+
+        <div class="w-full p-4 grid grid-cols-3 gap-8">
+          <button
+            id="check_in_btn"
+            type="button"
+            class="bg-green-600 hover:bg-green-400 text-white hover:text-zinc-800 font-bold px-12 py-2 rounded-md mb-2 w-full">
+            Fazer Check In
+          </button>
+          <button
+            id="cancel_btn"
+            type="button"
+            class="bg-red-600 hover:bg-red-400 text-white hover:text-zinc-800 font-bold px-12 py-2 rounded-md mb-2 w-full">
+            Cancelar
+          </button>
+          <a
+            href="/reservas"
+            id="back_btn"
+            type="button"
+            class="bg-zinc-600 hover:bg-zinc-400 text-white hover:text-zinc-800 font-bold py-2 text-center rounded-md mb-2 w-full">
+            Voltar
+          </a>
+        </div>
+      </div>
+    </SmallForm>
+  </dialog>
 </Layout>
 
 <script>
+  import { updateBookingSchema } from "../schemas/schemas";
   const tableBody = document.getElementById("table_content");
   if (tableBody) {
-    tableBody.addEventListener("click", (event) => {
+    tableBody.addEventListener("click", async (event) => {
       const target = event.target as HTMLElement;
       const rows = target.parentNode as HTMLTableRowElement;
       const uuid = rows.cells[0].textContent;
       if (uuid) {
-        const url = window.location.href;
-        if (url.endsWith("/")) {
-          window.location.href = url + uuid.trim();
-        } else {
-          window.location.href = url + "/" + uuid.trim();
-        }
+        const modal = document.getElementById(
+          "booking_update_modal"
+        ) as HTMLDialogElement;
+
+        modal.showModal();
+
+        const response = await fetch(
+          `http://127.0.0.1:8000/reservas/${uuid.trim()}`
+        );
+        const data = await response.json();
+
+        (document.getElementById("status") as HTMLInputElement).value =
+          data.status;
+        (document.getElementById("budget") as HTMLInputElement).value =
+          data.budget;
+        (document.getElementById("guest_document") as HTMLInputElement).value =
+          data.guest.document;
+        (document.getElementById("guest_name") as HTMLInputElement).value =
+          data.guest.name;
+        (
+          document.getElementById("accommodation_id") as HTMLInputElement
+        ).value = `${data.accommodation.id} - ${data.accommodation.name}`;
+        (document.getElementById("check_in") as HTMLInputElement).value =
+          data.check_in;
+        (document.getElementById("check_out") as HTMLInputElement).value =
+          data.check_out;
+        (document.getElementById("uuid") as HTMLInputElement).value = data.uuid;
+        (document.getElementById("locator") as HTMLInputElement).value =
+          data.locator;
       }
     });
   }
+
+  const cancelBtn = document.getElementById("cancel_btn") as HTMLButtonElement;
+  const checkInBtn = document.getElementById(
+    "check_in_btn"
+  ) as HTMLButtonElement;
+
+  const form = document.getElementById(
+    "update-booking-form"
+  ) as HTMLFormElement;
+
+  cancelBtn.addEventListener("click", async () => {
+    const data: any = {};
+    const formElements = form.elements;
+
+    for (const element of formElements) {
+      if (element instanceof HTMLInputElement) {
+        if (element.id == "accommodation_id") {
+          const accommodation_id = element.value.split(" - ")[0];
+          data[element.id] = accommodation_id;
+        } else if (element.id == "guest_name") {
+        } else if (element.id == "budget") {
+          data[element.id] = element.value
+            .replaceAll("R$", "")
+            .replaceAll(".", "")
+            .replace(",", ".")
+            .trim();
+        } else {
+          data[element.id] = element.value;
+        }
+      }
+    }
+    const parse = await updateBookingSchema.safeParseAsync(data);
+
+    if (!parse.success) {
+      console.log(parse.error.errors);
+    }
+
+    if (parse.success) {
+      parse.data.status = "Cancelado";
+
+      const response = await fetch(
+        `http://127.0.0.1:8000/reservas/${data.uuid}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(parse.data),
+        }
+      );
+
+      if (response.status === 204) {
+        window.location.href = "/reservas";
+      }
+    }
+  });
+
+  checkInBtn.addEventListener("click", async () => {
+    const data: any = {};
+    const formElements = form.elements;
+
+    for (const element of formElements) {
+      if (element instanceof HTMLInputElement) {
+        if (element.id == "accommodation_id") {
+          const accommodation_id = element.value.split(" - ")[0];
+          data[element.id] = accommodation_id;
+        } else if (element.id == "guest_name") {
+        } else if (element.id == "budget") {
+          data[element.id] = element.value
+            .replaceAll("R$", "")
+            .replaceAll(".", "")
+            .replace(",", ".")
+            .trim();
+        } else {
+          data[element.id] = element.value;
+        }
+      }
+    }
+    const parse = await updateBookingSchema.safeParseAsync(data);
+
+    if (!parse.success) {
+      console.log(parse.error.errors);
+    }
+
+    if (parse.success) {
+      if (parse.data.status == "Cancelado") {
+        alert("Reserva Cancelada");
+      }
+
+      if (parse.data.status != "Cancelado") {
+        parse.data.status = "Ativa";
+
+        const response = await fetch(
+          `http://127.0.0.1:8000/reservas/${data.uuid}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(parse.data),
+          }
+        );
+
+        if (response.status === 204) {
+          window.location.href = "/reservas";
+        }
+      }
+    }
+  });
 </script>
