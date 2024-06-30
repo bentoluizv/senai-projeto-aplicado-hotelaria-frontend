@@ -1,5 +1,9 @@
 ---
+import Form from "../components/Form.astro";
+import GuestModal from "../components/GuestModal.astro";
+import SelectCountryInput from "../components/SelectCountryInput.astro";
 import Table from "../components/Table.astro";
+import TextInput from "../components/TextInput.astro";
 import Layout from "../layouts/Layout.astro";
 import { guestSchema } from "../schemas/schemas";
 
@@ -35,18 +39,117 @@ let columns = ["Documento", "Nome", "País", "Telefone", "Criado em:"];
       ></a
     >
   </div>
+
+  <dialog
+    id="guest_update_modal"
+    class="p-4 bg-amber-50 text-zinc-700 text-lg font-['Poppins']">
+    <Form id="update-guest-form">
+      <div slot="inputs" class="flex flex-col w-full max-w-lg mx-auto">
+        <TextInput disabled id="created_at" label="Criado em" />
+        <TextInput id="document" label="Documento" value={data.document} />
+        <TextInput id="name" label="Nome" />
+        <TextInput id="surname" label="Sobrenome" />
+        <SelectCountryInput />
+        <TextInput id="phone" label="Telefone" />
+      </div>
+      <div
+        slot="buttons"
+        class="flex w-full items-center p-16 align-middle justify-center gap-6">
+        <button
+          id="update_button"
+          class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-56"
+          type="submit">Atualizar</button
+        >
+        <button
+          id="delete_button"
+          class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-56"
+          type="button">Excluir</button
+        >
+      </div>
+    </Form>
+  </dialog>
 </Layout>
 
 <script>
+  import { getFormData } from "../utils/getFormData";
+  import { creationalGuestSchema } from "../schemas/schemas";
+
   const tableBody = document.getElementById("table_content");
+
   if (tableBody) {
-    tableBody.addEventListener("click", (event) => {
+    tableBody.addEventListener("click", async (event) => {
       const target = event.target as HTMLElement;
       const rows = target.parentNode as HTMLTableRowElement;
-      const document = rows.cells[0].textContent;
-      if (document) {
-        window.location.href = `/hospedes/${document.trim()}`;
+      const doc = rows.cells[0].textContent;
+      if (doc) {
+        const modal = document.getElementById(
+          "guest_update_modal"
+        ) as HTMLDialogElement;
+        modal.showModal();
+        const response = await fetch(
+          `http://127.0.0.1:8000/hospedes/${doc.trim()}`
+        );
+        const data = await response.json();
+
+        (document.getElementById("created_at") as HTMLInputElement).value =
+          data.created_at;
+        (document.getElementById("document") as HTMLInputElement).value =
+          data.document;
+        (document.getElementById("name") as HTMLInputElement).value = data.name;
+        (document.getElementById("surname") as HTMLInputElement).value =
+          data.surname;
+        (document.getElementById("country") as HTMLInputElement).value =
+          data.country;
+        (document.getElementById("phone") as HTMLInputElement).value =
+          data.phone;
       }
     });
   }
+  const form = document.getElementById("update-guest-form") as HTMLFormElement;
+  const deleteButton = document.getElementById(
+    "delete_button"
+  ) as HTMLButtonElement;
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const data = getFormData(form);
+
+    const parse = await creationalGuestSchema.safeParseAsync(data);
+
+    if (!parse.success) {
+      console.log(parse.error.errors);
+    }
+
+    if (parse.success) {
+      const response = await fetch(
+        `http://127.0.0.1:8000/hospedes/${parse.data.document}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(parse.data),
+        }
+      );
+
+      if (response.status === 200) {
+        window.location.href = "/hospedes";
+      }
+    }
+  });
+
+  deleteButton.addEventListener("click", async () => {
+    const element = form.elements.namedItem("document") as HTMLInputElement;
+    const guestDocument = element.value;
+
+    const response = await fetch(
+      `http://127.0.0.1:8000/hospedes/${guestDocument}`,
+      { method: "DELETE" }
+    );
+
+    if (response.status === 204) {
+      window.location.href = "/hospedes";
+    }
+  });
 </script>
