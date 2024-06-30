@@ -1,5 +1,9 @@
 ---
+import CheckboxInput from "../components/CheckboxInput.astro";
+import Form from "../components/Form.astro";
+import NumberInputSmall from "../components/NumberInputSmall.astro";
 import Table from "../components/Table.astro";
+import TextInput from "../components/TextInput.astro";
 import Layout from "../layouts/Layout.astro";
 import { accommodationSchema } from "../schemas/schemas";
 
@@ -22,6 +26,10 @@ const tableData = parsedData.map((accommodation) => {
 });
 
 let columns = ["ID", "Nome", "Status", "Preço"];
+
+const amenitieResponse = await fetch("http://127.0.0.1:8000/amenities");
+const amenties_data = await amenitieResponse.json();
+const amenities: { id: number; name: string }[] = amenties_data["amenities"];
 ---
 
 <Layout>
@@ -44,18 +52,168 @@ let columns = ["ID", "Nome", "Status", "Preço"];
       ></a
     >
   </div>
+  <dialog
+    id="accommodation_update_modal"
+    class="p-4 bg-amber-50 text-zinc-700 text-lg font-['Poppins']">
+    <Form id="update-accommodation-form">
+      <div slot="inputs" class="flex flex-col gap-6">
+        <div class="flex justify-between">
+          <TextInput disabled id="id" label="Id" ) />
+          <TextInput disabled id="created_at" label="Criado em" />
+        </div>
+        <TextInput id="name" label="Nome" />
+        <TextInput id="status" label="Status" />
+        <div class="flex gap-4">
+          <NumberInputSmall id="min_nights" label="Min. Noites" />
+          <NumberInputSmall id="total_guests" label="Max. Hospedes" />
+          <NumberInputSmall id="single_beds" label="Cama Solteiro" />
+          <NumberInputSmall id="double_beds" label="Cama Casal" />
+          <NumberInputSmall id="price" label="Preço" />
+        </div>
+        <div
+          class="amenities-list w-full h-[120px] flex p-2 justify-between flex-wrap">
+          {
+            amenities.map((amenitie) => (
+              <CheckboxInput id={String(amenitie.id)} label={amenitie.name} />
+            ))
+          }
+        </div>
+      </div>
 
-  <script>
-    const tableBody = document.getElementById("table_content");
-    if (tableBody) {
-      tableBody.addEventListener("click", (event) => {
-        const target = event.target as HTMLElement;
-        const rows = target.parentNode as HTMLTableRowElement;
-        const id = rows.cells[0].textContent;
-        if (id) {
-          window.location.href = `${window.location.href.trim()}/${id.trim()}`;
-        }
-      });
-    }
-  </script>
+      <div slot="buttons" class="flex flex-col w-full items-center p-16">
+        <div
+          slot="buttons"
+          class="flex w-full items-center p-16 align-middle justify-center gap-6">
+          <button
+            id="update_button"
+            class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-56"
+            type="submit">Atualizar</button
+          >
+          <button
+            id="delete_button"
+            class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-56"
+            type="button">Excluir</button
+          >
+        </div>
+      </div>
+    </Form>
+  </dialog>
 </Layout>
+
+<script>
+  import { updateAccommodationSchema } from "../schemas/schemas";
+
+  const tableBody = document.getElementById("table_content");
+  if (tableBody) {
+    tableBody.addEventListener("click", async (event) => {
+      const target = event.target as HTMLElement;
+      const rows = target.parentNode as HTMLTableRowElement;
+      const id = rows.cells[0].textContent;
+      if (id) {
+        const modal = document.getElementById(
+          "accommodation_update_modal"
+        ) as HTMLDialogElement;
+        modal.showModal();
+
+        const accommodationResponse = await fetch(
+          `http://127.0.0.1:8000/acomodacoes/${id.trim()}`
+        );
+        const data = await accommodationResponse.json();
+
+        (document.getElementById("created_at") as HTMLInputElement).value =
+          data.created_at;
+
+        (document.getElementById("id") as HTMLInputElement).value = String(
+          data.id
+        );
+        (document.getElementById("name") as HTMLInputElement).value = data.name;
+        (document.getElementById("status") as HTMLInputElement).value =
+          data.status;
+        (document.getElementById("min_nights") as HTMLInputElement).value =
+          String(data.min_nights);
+        (document.getElementById("total_guests") as HTMLInputElement).value =
+          String(data.total_guests);
+        (document.getElementById("single_beds") as HTMLInputElement).value =
+          String(data.single_beds);
+        (document.getElementById("double_beds") as HTMLInputElement).value =
+          String(data.double_beds);
+        (document.getElementById("price") as HTMLInputElement).value = String(
+          data.price
+        );
+
+        for (const amenitie of data.amenities) {
+          const amenitieChecklist = document.getElementById(
+            amenitie.id
+          ) as HTMLInputElement;
+          amenitieChecklist.checked = true;
+        }
+      }
+    });
+  }
+
+  const form = document.getElementById(
+    "update-accommodation-form"
+  ) as HTMLFormElement;
+
+  const deleteButton = document.getElementById(
+    "delete_button"
+  ) as HTMLButtonElement;
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const data: any = {};
+    const amenities = [];
+    const formElements = form.elements;
+
+    for (const element of formElements) {
+      if (element instanceof HTMLInputElement) {
+        if (element.checked) {
+          amenities.push(element.name);
+        }
+        if (element.value !== "on") {
+          data[element.id] = element.value;
+        }
+      }
+    }
+    data.amenities = amenities;
+    const parse = await updateAccommodationSchema.safeParseAsync(data);
+
+    if (!parse.success) {
+      console.log(parse.error.errors);
+    }
+
+    if (parse.success) {
+      const response = await fetch(
+        `http://127.0.0.1:8000/acomodacoes/${parse.data.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(parse.data),
+        }
+      );
+
+      if (response.status === 200) {
+        window.location.href = "/acomodacoes";
+      } else {
+        const data = await response.json();
+        console.log(data);
+      }
+    }
+  });
+
+  deleteButton.addEventListener("click", async () => {
+    const element = form.elements.namedItem("id") as HTMLInputElement;
+    const accommodationId = element.value;
+
+    const response = await fetch(
+      `http://127.0.0.1:8000/acomodacoes/${accommodationId}`,
+      { method: "DELETE" }
+    );
+
+    if (response.status === 204) {
+      window.location.href = "/acomodacoes";
+    }
+  });
+</script>
