@@ -5,7 +5,7 @@ import TextInput from "../components/TextInput.astro";
 import Layout from "../layouts/Layout.astro";
 import { bookingSchema } from "../schemas/schemas";
 
-const response = await fetch("http://127.0.0.1:8000/reservas");
+const response = await fetch("http://127.0.0.1/bookings");
 const data = await response.json();
 
 const bookings = await bookingSchema.array().parseAsync(data["bookings"]);
@@ -114,7 +114,7 @@ let columns = [
         modal.showModal();
 
         const response = await fetch(
-          `http://127.0.0.1:8000/reservas/${uuid.trim()}`
+          `http://127.0.0.1/bookings/${uuid.trim()}`
         );
         const data = await response.json();
 
@@ -179,16 +179,13 @@ let columns = [
     if (parse.success) {
       parse.data.status = "Cancelado";
 
-      const response = await fetch(
-        `http://127.0.0.1:8000/reservas/${data.uuid}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(parse.data),
-        }
-      );
+      const response = await fetch(`http://127.0.0.1/bookings/${data.uuid}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(parse.data),
+      });
 
       if (response.status === 204) {
         window.location.href = "/reservas";
@@ -231,16 +228,13 @@ let columns = [
       if (parse.data.status != "Cancelado") {
         parse.data.status = "Ativa";
 
-        const response = await fetch(
-          `http://127.0.0.1:8000/reservas/${data.uuid}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(parse.data),
-          }
-        );
+        const response = await fetch(`http://127.0.0.1/bookings/${data.uuid}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(parse.data),
+        });
 
         if (response.status === 204) {
           window.location.href = "/reservas";

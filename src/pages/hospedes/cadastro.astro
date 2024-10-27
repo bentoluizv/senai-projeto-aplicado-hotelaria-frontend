@@ -25,8 +25,8 @@ import Layout from "../../layouts/Layout.astro";
 </Layout>
 
 <script>
-  import { getFormData } from "../../utils/getFormData";
   import { creationalGuestSchema } from "../../schemas/schemas";
+  import { getFormData } from "../../utils/getFormData";
   const form = document.getElementById("new-guest-form") as HTMLFormElement;
 
   form.addEventListener("submit", async (event) => {
@@ -38,7 +38,7 @@ import Layout from "../../layouts/Layout.astro";
     if (!parse.success) {
       console.log(parse.error.errors);
     } else {
-      const response = await fetch("http://127.0.0.1:8000/hospedes", {
+      const response = await fetch("http://127.0.0.1/guests", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

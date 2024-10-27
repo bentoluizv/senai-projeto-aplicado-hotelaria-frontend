@@ -6,7 +6,7 @@ import TextInput from "../../components/TextInput.astro";
 import Layout from "../../layouts/Layout.astro";
 import { accommodationSchema } from "../../schemas/schemas";
 
-const response = await fetch("http://127.0.0.1:8000/acomodacoes");
+const response = await fetch("http://127.0.0.1:8000/accommodations");
 const data = await response.json();
 
 const accommodations = await accommodationSchema
@@ -79,8 +79,8 @@ const today = new Date().toISOString().split("T")[0];
 </Layout>
 
 <script>
-  import { getFormData } from "../../utils/getFormData";
   import { creationalBookingSchema } from "../../schemas/schemas";
+  import { getFormData } from "../../utils/getFormData";
 
   const inputGuestDocument = document.getElementById(
     "document"

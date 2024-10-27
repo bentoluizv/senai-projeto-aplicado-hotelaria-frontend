@@ -7,7 +7,7 @@ import TextInput from "../components/TextInput.astro";
 import Layout from "../layouts/Layout.astro";
 import { accommodationSchema } from "../schemas/schemas";
 
-const response = await fetch("http://127.0.0.1:8000/acomodacoes");
+const response = await fetch("http://127.0.0.1/accommodations");
 const data = await response.json();
 const parsedData = await accommodationSchema
   .array()
@@ -27,7 +27,7 @@ const tableData = parsedData.map((accommodation) => {
 
 let columns = ["ID", "Nome", "Status", "Preço"];
 
-const amenitieResponse = await fetch("http://127.0.0.1:8000/amenities");
+const amenitieResponse = await fetch("http://127.0.0.1/amenities");
 const amenties_data = await amenitieResponse.json();
 const amenities: { id: number; name: string }[] = amenties_data["amenities"];
 ---
@@ -123,7 +123,7 @@ const amenities: { id: number; name: string }[] = amenties_data["amenities"];
         modal.showModal();
 
         const accommodationResponse = await fetch(
-          `http://127.0.0.1:8000/acomodacoes/${id.trim()}`
+          `http://127.0.0.1/accommodations/${id.trim()}`
         );
         const data = await accommodationResponse.json();
 
@@ -191,7 +191,7 @@ const amenities: { id: number; name: string }[] = amenties_data["amenities"];
 
     if (parse.success) {
       const response = await fetch(
-        `http://127.0.0.1:8000/acomodacoes/${parse.data.id}`,
+        `http://127.0.0.1/accommodations/${parse.data.id}`,
         {
           method: "PUT",
           headers: {
@@ -215,7 +215,7 @@ const amenities: { id: number; name: string }[] = amenties_data["amenities"];
     const accommodationId = element.value;
 
     const response = await fetch(
-      `http://127.0.0.1:8000/acomodacoes/${accommodationId}`,
+      `http://127.0.0.1/accommodations/${accommodationId}`,
       { method: "DELETE" }
     );
 

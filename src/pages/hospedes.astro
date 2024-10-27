@@ -6,7 +6,7 @@ import TextInput from "../components/TextInput.astro";
 import Layout from "../layouts/Layout.astro";
 import { guestSchema } from "../schemas/schemas";
 
-const response = await fetch("http://127.0.0.1:8000/hospedes");
+const response = await fetch("http://127.0.0.1/guests");
 const data = await response.json();
 
 const parsedData = await guestSchema.array().parseAsync(data["guests"]);
@@ -75,8 +75,8 @@ let columns = ["Documento", "Nome", "País", "Telefone", "Criado em:"];
 </Layout>
 
 <script>
-  import { getFormData } from "../utils/getFormData";
   import { creationalGuestSchema } from "../schemas/schemas";
+  import { getFormData } from "../utils/getFormData";
 
   const tableBody = document.getElementById("table_content");
 
@@ -91,9 +91,7 @@ let columns = ["Documento", "Nome", "País", "Telefone", "Criado em:"];
         ) as HTMLDialogElement;
         modal.showModal();
 
-        const response = await fetch(
-          `http://127.0.0.1:8000/hospedes/${doc.trim()}`
-        );
+        const response = await fetch(`http://127.0.0.1/guests/${doc.trim()}`);
         const data = await response.json();
 
         (document.getElementById("created_at") as HTMLInputElement).value =
@@ -128,7 +126,7 @@ let columns = ["Documento", "Nome", "País", "Telefone", "Criado em:"];
 
     if (parse.success) {
       const response = await fetch(
-        `http://127.0.0.1:8000/hospedes/${parse.data.document}`,
+        `http://127.0.0.1/guests/${parse.data.document}`,
         {
           method: "PUT",
           headers: {
@@ -148,10 +146,9 @@ let columns = ["Documento", "Nome", "País", "Telefone", "Criado em:"];
     const element = form.elements.namedItem("document") as HTMLInputElement;
     const guestDocument = element.value;
 
-    const response = await fetch(
-      `http://127.0.0.1:8000/hospedes/${guestDocument}`,
-      { method: "DELETE" }
-    );
+    const response = await fetch(`http://127.0.0.1/guests/${guestDocument}`, {
+      method: "DELETE",
+    });
 
     if (response.status === 204) {
       window.location.href = "/hospedes";
