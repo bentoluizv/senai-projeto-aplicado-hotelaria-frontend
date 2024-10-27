@@ -6,7 +6,7 @@ import TextInput from "../components/TextInput.astro";
 import Layout from "../layouts/Layout.astro";
 import { guestSchema } from "../schemas/schemas";
 
-const response = await fetch("http://127.0.0.1/guests");
+const response = await fetch(`http://${import.meta.env.BACKEND_URL}/guests`);
 const data = await response.json();
 
 const parsedData = await guestSchema.array().parseAsync(data["guests"]);
@@ -91,7 +91,9 @@ let columns = ["Documento", "Nome", "País", "Telefone", "Criado em:"];
         ) as HTMLDialogElement;
         modal.showModal();
 
-        const response = await fetch(`http://127.0.0.1/guests/${doc.trim()}`);
+        const response = await fetch(
+          `http://${import.meta.env.BACKEND_URL}/guests/${doc.trim()}`
+        );
         const data = await response.json();
 
         (document.getElementById("created_at") as HTMLInputElement).value =
@@ -126,7 +128,7 @@ let columns = ["Documento", "Nome", "País", "Telefone", "Criado em:"];
 
     if (parse.success) {
       const response = await fetch(
-        `http://127.0.0.1/guests/${parse.data.document}`,
+        `http://${import.meta.env.BACKEND_URL}/guests/${parse.data.document}`,
         {
           method: "PUT",
           headers: {
@@ -146,9 +148,12 @@ let columns = ["Documento", "Nome", "País", "Telefone", "Criado em:"];
     const element = form.elements.namedItem("document") as HTMLInputElement;
     const guestDocument = element.value;
 
-    const response = await fetch(`http://127.0.0.1/guests/${guestDocument}`, {
-      method: "DELETE",
-    });
+    const response = await fetch(
+      `http://${import.meta.env.BACKEND_URL}/guests/${guestDocument}`,
+      {
+        method: "DELETE",
+      }
+    );
 
     if (response.status === 204) {
       window.location.href = "/hospedes";

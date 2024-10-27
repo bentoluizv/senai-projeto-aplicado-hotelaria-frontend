@@ -86,7 +86,9 @@ import Layout from "../layouts/Layout.astro";
       "search_field"
     ) as HTMLInputElement;
     const locator = searchField.value;
-    const response = await fetch(`http://127.0.0.1/bookings/${locator.trim()}`);
+    const response = await fetch(
+      `http://${import.meta.env.BACKEND_URL}/bookings/${locator.trim()}`
+    );
     const data = await response.json();
     (document.getElementById("status") as HTMLInputElement).value = data.status;
     (document.getElementById("budget") as HTMLInputElement).value = data.budget;

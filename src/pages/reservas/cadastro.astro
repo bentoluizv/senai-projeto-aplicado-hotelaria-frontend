@@ -6,7 +6,9 @@ import TextInput from "../../components/TextInput.astro";
 import Layout from "../../layouts/Layout.astro";
 import { accommodationSchema } from "../../schemas/schemas";
 
-const response = await fetch("http://127.0.0.1:8000/accommodations");
+const response = await fetch(
+  `http://${import.meta.env.BACKEND_URL}/accommodations`
+);
 const data = await response.json();
 
 const accommodations = await accommodationSchema
@@ -92,7 +94,9 @@ const today = new Date().toISOString().split("T")[0];
       .replaceAll(".", "")
       .replace("-", "");
 
-    const response = await fetch(`http://127.0.0.1:8000/hospedes/${doc}`);
+    const response = await fetch(
+      `http://${import.meta.env.BACKEND_URL}/hospedes/${doc}`
+    );
 
     if (response.status == 200) {
       const data = await response.json();
@@ -118,7 +122,9 @@ const today = new Date().toISOString().split("T")[0];
 
   selectAccommodationElement.addEventListener("change", async (event) => {
     const id = selectAccommodationElement.selectedIndex;
-    const response = await fetch(`http://127.0.0.1:8000/acomodacoes/${id}`);
+    const response = await fetch(
+      `http://${import.meta.env.BACKEND_URL}/acomodacoes/${id}`
+    );
     const data = await response.json();
     for (const [key, value] of Object.entries(data)) {
       const element = document.getElementById(key);
@@ -207,11 +213,14 @@ const today = new Date().toISOString().split("T")[0];
     }
 
     if (parse.success) {
-      const response = await fetch("http://127.0.0.1:8000/reservas", {
-        body: JSON.stringify(parse.data),
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
+      const response = await fetch(
+        `http://${import.meta.env.BACKEND_URL}/reservas`,
+        {
+          body: JSON.stringify(parse.data),
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
       if (response.status === 201) {
         window.location.href = "/reservas";
