@@ -7,9 +7,12 @@ import TextInput from "../components/TextInput.astro";
 import Layout from "../layouts/Layout.astro";
 import { accommodationSchema } from "../schemas/schemas";
 
-const response = await fetch(
-  `http://${import.meta.env.BACKEND_URL}/accommodations`
-);
+let BACKEND_URL = "127.0.0.1";
+
+if (import.meta.env.PROD) {
+  BACKEND_URL = "89.117.33.177";
+}
+const response = await fetch(`http://${BACKEND_URL}/accommodations`);
 const data = await response.json();
 const parsedData = await accommodationSchema
   .array()
@@ -29,9 +32,7 @@ const tableData = parsedData.map((accommodation) => {
 
 let columns = ["ID", "Nome", "Status", "Preço"];
 
-const amenitieResponse = await fetch(
-  `http://${import.meta.env.BACKEND_URL}/amenities`
-);
+const amenitieResponse = await fetch(`http://${BACKEND_URL}/amenities`);
 const amenties_data = await amenitieResponse.json();
 const amenities: { id: number; name: string }[] = amenties_data["amenities"];
 ---
@@ -114,6 +115,12 @@ const amenities: { id: number; name: string }[] = amenties_data["amenities"];
 <script>
   import { updateAccommodationSchema } from "../schemas/schemas";
 
+  let BACKEND_URL = "127.0.0.1";
+
+  if (import.meta.env.PROD) {
+    BACKEND_URL = "89.117.33.177";
+  }
+
   const tableBody = document.getElementById("table_content");
   if (tableBody) {
     tableBody.addEventListener("click", async (event) => {
@@ -127,7 +134,7 @@ const amenities: { id: number; name: string }[] = amenties_data["amenities"];
         modal.showModal();
 
         const accommodationResponse = await fetch(
-          `http://${import.meta.env.BACKEND_URL}/accommodations/${id.trim()}`
+          `http://${BACKEND_URL}/accommodations/${id.trim()}`
         );
         const data = await accommodationResponse.json();
 
@@ -195,7 +202,7 @@ const amenities: { id: number; name: string }[] = amenties_data["amenities"];
 
     if (parse.success) {
       const response = await fetch(
-        `http://${import.meta.env.BACKEND_URL}/accommodations/${parse.data.id}`,
+        `http://${BACKEND_URL}/accommodations/${parse.data.id}`,
         {
           method: "PUT",
           headers: {
@@ -219,7 +226,7 @@ const amenities: { id: number; name: string }[] = amenties_data["amenities"];
     const accommodationId = element.value;
 
     const response = await fetch(
-      `http://${import.meta.env.BACKEND_URL}/accommodations/${accommodationId}`,
+      `http://${BACKEND_URL}/accommodations/${accommodationId}`,
       { method: "DELETE" }
     );
 

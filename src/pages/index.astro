@@ -79,6 +79,12 @@ import Layout from "../layouts/Layout.astro";
 </Layout>
 
 <script>
+  let BACKEND_URL = "127.0.0.1";
+
+  if (import.meta.env.PROD) {
+    BACKEND_URL = "89.117.33.177";
+  }
+
   const searchBtn = document.getElementById("search_btn") as HTMLButtonElement;
 
   searchBtn.addEventListener("click", async () => {
@@ -87,7 +93,7 @@ import Layout from "../layouts/Layout.astro";
     ) as HTMLInputElement;
     const locator = searchField.value;
     const response = await fetch(
-      `http://${import.meta.env.BACKEND_URL}/bookings/${locator.trim()}`
+      `http://${BACKEND_URL}/bookings/${locator.trim()}`
     );
     const data = await response.json();
     (document.getElementById("status") as HTMLInputElement).value = data.status;

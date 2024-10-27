@@ -52,6 +52,12 @@ const amenities = data["amenities"];
   import { creationalAccommodationSchema } from "../../schemas/schemas";
   import { getFormData } from "../../utils/getFormData";
 
+  let BACKEND_URL = "127.0.0.1";
+
+  if (import.meta.env.PROD) {
+    BACKEND_URL = "89.117.33.177";
+  }
+
   const form = document.getElementById(
     "new-accommodation-form"
   ) as HTMLFormElement;
@@ -80,7 +86,7 @@ const amenities = data["amenities"];
     }
 
     if (parse.success) {
-      const response = await fetch("http://127.0.0.1/accommodations", {
+      const response = await fetch(`http://${BACKEND_URL}/accommodations`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

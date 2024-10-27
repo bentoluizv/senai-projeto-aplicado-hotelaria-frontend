@@ -6,9 +6,13 @@ import TextInput from "../../components/TextInput.astro";
 import Layout from "../../layouts/Layout.astro";
 import { accommodationSchema } from "../../schemas/schemas";
 
-const response = await fetch(
-  `http://${import.meta.env.BACKEND_URL}/accommodations`
-);
+let BACKEND_URL = "127.0.0.1";
+
+if (import.meta.env.PROD) {
+  BACKEND_URL = "89.117.33.177";
+}
+
+const response = await fetch(`http://${BACKEND_URL}/accommodations`);
 const data = await response.json();
 
 const accommodations = await accommodationSchema
@@ -84,6 +88,12 @@ const today = new Date().toISOString().split("T")[0];
   import { creationalBookingSchema } from "../../schemas/schemas";
   import { getFormData } from "../../utils/getFormData";
 
+  let BACKEND_URL = "127.0.0.1";
+
+  if (import.meta.env.PROD) {
+    BACKEND_URL = "89.117.33.177";
+  }
+
   const inputGuestDocument = document.getElementById(
     "document"
   ) as HTMLButtonElement;
@@ -94,9 +104,7 @@ const today = new Date().toISOString().split("T")[0];
       .replaceAll(".", "")
       .replace("-", "");
 
-    const response = await fetch(
-      `http://${import.meta.env.BACKEND_URL}/hospedes/${doc}`
-    );
+    const response = await fetch(`http://${BACKEND_URL}/hospedes/${doc}`);
 
     if (response.status == 200) {
       const data = await response.json();
@@ -122,9 +130,7 @@ const today = new Date().toISOString().split("T")[0];
 
   selectAccommodationElement.addEventListener("change", async (event) => {
     const id = selectAccommodationElement.selectedIndex;
-    const response = await fetch(
-      `http://${import.meta.env.BACKEND_URL}/acomodacoes/${id}`
-    );
+    const response = await fetch(`http://${BACKEND_URL}/acomodacoes/${id}`);
     const data = await response.json();
     for (const [key, value] of Object.entries(data)) {
       const element = document.getElementById(key);
@@ -213,14 +219,11 @@ const today = new Date().toISOString().split("T")[0];
     }
 
     if (parse.success) {
-      const response = await fetch(
-        `http://${import.meta.env.BACKEND_URL}/reservas`,
-        {
-          body: JSON.stringify(parse.data),
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      const response = await fetch(`http://${BACKEND_URL}/reservas`, {
+        body: JSON.stringify(parse.data),
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
 
       if (response.status === 201) {
         window.location.href = "/reservas";
