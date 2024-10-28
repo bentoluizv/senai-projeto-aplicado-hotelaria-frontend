@@ -2,11 +2,8 @@ import { z } from "zod";
 import { formatPhoneNumber } from "../utils/formatPhoneNumber";
 
 export const guestSchema = z.object({
+  ulid: z.string().ulid(),
   document: z.string().trim(),
-  created_at: z
-    .string()
-    .trim()
-    .transform((datetime) => new Date(datetime).toLocaleString()),
   name: z.string().trim(),
   surname: z.string().trim(),
   country: z.string().trim(),
