@@ -14,7 +14,6 @@ if (import.meta.env.PROD) {
 
 const response = await fetch(`http://${BACKEND_URL}/guests`);
 const data = await response.json();
-
 const parsedData = await guestSchema.array().parseAsync(data["guests"]);
 
 const tableData = parsedData.map((guest) => {
@@ -23,10 +22,11 @@ const tableData = parsedData.map((guest) => {
     name: `${guest.name} ${guest.surname}`,
     country: guest.country,
     phone: guest.phone,
-    created_at: guest.created_at.toLocaleString(),
+    ulid: guest.ulid,
   };
 });
-let columns = ["Documento", "Nome", "País", "Telefone", "Criado em:"];
+
+let columns = ["Documento", "Nome", "País", "Telefone"];
 ---
 
 <Layout>
@@ -50,8 +50,13 @@ let columns = ["Documento", "Nome", "País", "Telefone", "Criado em:"];
     class="p-4 bg-amber-50 text-zinc-700 text-lg font-['Poppins']">
     <Form id="update-guest-form">
       <div slot="inputs" class="flex flex-col w-full max-w-lg mx-auto">
-        <TextInput disabled id="created_at" label="Criado em" />
-        <TextInput id="document" label="Documento" value={data.document} />
+        <TextInput hidden disabled id="ulid" label="ulid" />
+        <TextInput
+          disabled
+          id="document"
+          label="Documento"
+          value={data.document}
+        />
         <TextInput id="name" label="Nome" />
         <TextInput id="surname" label="Sobrenome" />
         <SelectCountryInput />
@@ -108,8 +113,7 @@ let columns = ["Documento", "Nome", "País", "Telefone", "Criado em:"];
         );
         const data = await response.json();
 
-        (document.getElementById("created_at") as HTMLInputElement).value =
-          data.created_at;
+        (document.getElementById("ulid") as HTMLInputElement).value = data.ulid;
         (document.getElementById("document") as HTMLInputElement).value =
           data.document;
         (document.getElementById("name") as HTMLInputElement).value = data.name;
@@ -130,44 +134,38 @@ let columns = ["Documento", "Nome", "País", "Telefone", "Criado em:"];
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    const data = getFormData(form);
+    const dataWithoutDoc = getFormData(form);
+    const doc_element = document.getElementById("document") as HTMLInputElement;
+    const ulid_element = document.getElementById("ulid") as HTMLInputElement;
+    const doc = doc_element.value;
+    const ulid = ulid_element.value;
 
-    const parse = await creationalGuestSchema.safeParseAsync(data);
+    const formData = {
+      document: doc,
+      ...dataWithoutDoc,
+    };
+    const data = creationalGuestSchema.parse(formData);
 
-    if (!parse.success) {
-      console.log(parse.error.errors);
-    }
+    const response = await fetch(`http://${BACKEND_URL}/guests/${ulid}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
 
-    if (parse.success) {
-      const response = await fetch(
-        `http://${BACKEND_URL}/guests/${parse.data.document}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(parse.data),
-        }
-      );
-
-      if (response.status === 200) {
-        window.location.href = "/hospedes";
-      }
+    if (response.status === 200) {
+      window.location.href = "/hospedes";
     }
   });
 
   deleteButton.addEventListener("click", async () => {
-    const element = form.elements.namedItem("document") as HTMLInputElement;
-    const guestDocument = element.value;
-
-    const response = await fetch(
-      `http://${BACKEND_URL}/guests/${guestDocument}`,
-      {
-        method: "DELETE",
-      }
-    );
-
-    if (response.status === 204) {
+    const element = form.elements.namedItem("ulid") as HTMLInputElement;
+    const ulid = element.value;
+    const response = await fetch(`http://${BACKEND_URL}/guests/${ulid}`, {
+      method: "DELETE",
+    });
+    if (response.status === 200) {
       window.location.href = "/hospedes";
     }
   });
