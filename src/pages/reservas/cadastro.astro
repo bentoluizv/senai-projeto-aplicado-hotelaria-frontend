@@ -18,15 +18,12 @@ const data = await response.json();
 const accommodations = await accommodationSchema
   .array()
   .parseAsync(data["accommodations"]);
+
 const avaliableAccommodationsName = accommodations
-  .filter(
-    (accommodation) =>
-      accommodation.status == "Disponivel" ||
-      accommodation.status == "Aguardando Limpeza" ||
-      accommodation.status == "Disponível"
-  )
+  .filter((accommodation) => accommodation.status == "avaiable")
   .map(({ name }) => name);
 
+console.log(avaliableAccommodationsName);
 const today = new Date().toISOString().split("T")[0];
 ---
 
@@ -94,6 +91,9 @@ const today = new Date().toISOString().split("T")[0];
     BACKEND_URL = "89.117.33.177";
   }
 
+  const response = await fetch(`http://${BACKEND_URL}/accommodations/`);
+  const { accommodations } = await response.json();
+
   const inputGuestDocument = document.getElementById(
     "document"
   ) as HTMLButtonElement;
@@ -104,7 +104,7 @@ const today = new Date().toISOString().split("T")[0];
       .replaceAll(".", "")
       .replace("-", "");
 
-    const response = await fetch(`http://${BACKEND_URL}/hospedes/${doc}`);
+    const response = await fetch(`http://${BACKEND_URL}/guests/${doc}`);
 
     if (response.status == 200) {
       const data = await response.json();
@@ -127,10 +127,15 @@ const today = new Date().toISOString().split("T")[0];
   const selectAccommodationElement = document.getElementById(
     "select_accommodation"
   ) as HTMLSelectElement;
-
   selectAccommodationElement.addEventListener("change", async (event) => {
-    const id = selectAccommodationElement.selectedIndex;
-    const response = await fetch(`http://${BACKEND_URL}/acomodacoes/${id}`);
+    const name = selectAccommodationElement.value;
+    const { ulid } = accommodations.find(
+      (element: any) => element.name == name
+    );
+    const response = await fetch(
+      `http://${BACKEND_URL}/accommodations/${ulid}`
+    );
+
     const data = await response.json();
     for (const [key, value] of Object.entries(data)) {
       const element = document.getElementById(key);
@@ -202,35 +207,30 @@ const today = new Date().toISOString().split("T")[0];
       .replace(",", ".")
       .trim();
 
-    const accommodationId = selectAccommodationElement.selectedIndex;
+    const name = selectAccommodationElement.value;
+    const { ulid } = accommodations.find(
+      (element: any) => element.name == name
+    );
 
     const data = {
       check_in: formData["check_in"],
       check_out: formData["check_out"],
       guest_document: formData["document"],
-      accommodation_id: accommodationId,
+      accommodation_ulid: ulid,
       budget,
     };
+    const parsedData = creationalBookingSchema.parse(data);
 
-    const parse = await creationalBookingSchema.safeParseAsync(data);
+    const response = await fetch(`http://${BACKEND_URL}/bookings`, {
+      body: JSON.stringify(parsedData),
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
 
-    if (!parse.success) {
-      console.log(parse.error.errors);
-    }
-
-    if (parse.success) {
-      const response = await fetch(`http://${BACKEND_URL}/reservas`, {
-        body: JSON.stringify(parse.data),
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      if (response.status === 201) {
-        window.location.href = "/reservas";
-      } else {
-        const data = await response.json();
-        console.log(data);
-      }
+    if (response.status === 201) {
+      window.location.href = "/reservas";
+    } else {
+      const data = await response.json();
     }
   });
 </script>
