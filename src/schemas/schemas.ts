@@ -34,17 +34,12 @@ export const creationalGuestSchema = z.object({
 });
 
 export const accommodationSchema = z.object({
-  id: z.coerce.number(),
-  created_at: z
-    .string()
-    .trim()
-    .transform((datetime) => new Date(datetime).toLocaleString()),
+  ulid: z.string().ulid(),
   name: z.coerce.string().trim(),
   status: z.coerce.string().trim(),
   total_guests: z.coerce.number().min(1),
   single_beds: z.coerce.number().min(0),
   double_beds: z.coerce.number().min(0),
-  min_nights: z.coerce.number().min(0),
   price: z.coerce.number().min(0),
   amenities: z.array(
     z.object({
@@ -55,28 +50,19 @@ export const accommodationSchema = z.object({
 });
 
 export const updateAccommodationSchema = z.object({
-  id: z.coerce.number(),
-  created_at: z
-    .string()
-    .trim()
-    .transform((datetime) => new Date(datetime).toISOString()),
-  name: z.string().trim(),
-  status: z.string().trim(),
-  total_guests: z.coerce.number().min(1),
-  single_beds: z.coerce.number().min(0),
-  double_beds: z.coerce.number().min(0),
-  min_nights: z.coerce.number().min(0),
-  price: z.coerce.number().min(0),
-  amenities: z.array(z.string()),
+  name: z.string().trim().optional(),
+  total_guests: z.coerce.number().min(1).optional(),
+  single_beds: z.coerce.number().min(0).optional(),
+  double_beds: z.coerce.number().min(0).optional(),
+  price: z.coerce.number().min(0).optional(),
+  amenities: z.array(z.string()).optional(),
 });
 
 export const creationalAccommodationSchema = z.object({
   name: z.string().trim(),
-  status: z.string().trim().default("Disponivel"),
   total_guests: z.coerce.number().min(1),
   single_beds: z.coerce.number().min(0),
   double_beds: z.coerce.number().min(0),
-  min_nights: z.coerce.number().min(0),
   price: z.coerce.number().min(0),
   amenities: z.array(z.string()),
 });
