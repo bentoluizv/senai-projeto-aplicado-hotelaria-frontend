@@ -23,8 +23,7 @@ const amenities = data["amenities"];
   <Form id="new-accommodation-form">
     <div slot="inputs" class="flex flex-col gap-6">
       <TextInput id="name" label="Nome" />
-      <div class="flex gap-4">
-        <NumberInputSmall id="min_nights" label="Min. Noites" />
+      <div class="flex justify-between">
         <NumberInputSmall id="total_guests" label="Max. Hospedes" />
         <NumberInputSmall id="single_beds" label="Cama Solteiro" />
         <NumberInputSmall id="double_beds" label="Cama Casal" />
@@ -86,7 +85,7 @@ const amenities = data["amenities"];
     data.amenities = amenities;
 
     const parse = await creationalAccommodationSchema.safeParseAsync(data);
-
+    console.log(parse.data);
     if (!parse.success) {
       console.log(parse.error.errors);
     }
