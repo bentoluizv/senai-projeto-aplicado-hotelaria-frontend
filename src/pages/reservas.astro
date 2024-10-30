@@ -13,12 +13,12 @@ if (import.meta.env.PROD) {
 
 const response = await fetch(`http://${BACKEND_URL}/bookings`);
 const data = await response.json();
-
+console.log(data);
 const bookings = await bookingSchema.array().parseAsync(data["bookings"]);
 
 const tableData = bookings.map((bookinng) => {
   return {
-    uuid: bookinng.uuid,
+    ulid: bookinng.ulid,
     status: bookinng.status,
     check_in: bookinng.check_in,
     chec_out: bookinng.check_out,
@@ -111,7 +111,6 @@ let columns = [
     BACKEND_URL = "http://89.117.33.177/";
   }
 
-  import { updateBookingSchema } from "../schemas/schemas";
   const tableBody = document.getElementById("table_content");
   if (tableBody) {
     tableBody.addEventListener("click", async (event) => {
@@ -153,6 +152,7 @@ let columns = [
   }
 
   const cancelBtn = document.getElementById("cancel_btn") as HTMLButtonElement;
+
   const checkInBtn = document.getElementById(
     "check_in_btn"
   ) as HTMLButtonElement;
@@ -179,83 +179,6 @@ let columns = [
             .trim();
         } else {
           data[element.id] = element.value;
-        }
-      }
-    }
-    const parse = await updateBookingSchema.safeParseAsync(data);
-
-    if (!parse.success) {
-      console.log(parse.error.errors);
-    }
-
-    if (parse.success) {
-      parse.data.status = "Cancelado";
-
-      const response = await fetch(
-        `http://${BACKEND_URL}/bookings/${data.uuid}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(parse.data),
-        }
-      );
-
-      if (response.status === 204) {
-        window.location.href = "/reservas";
-      }
-    }
-  });
-
-  checkInBtn.addEventListener("click", async () => {
-    const data: any = {};
-    const formElements = form.elements;
-
-    for (const element of formElements) {
-      if (element instanceof HTMLInputElement) {
-        if (element.id == "accommodation_id") {
-          const accommodation_id = element.value.split(" - ")[0];
-          data[element.id] = accommodation_id;
-        } else if (element.id == "guest_name") {
-        } else if (element.id == "budget") {
-          data[element.id] = element.value
-            .replaceAll("R$", "")
-            .replaceAll(".", "")
-            .replace(",", ".")
-            .trim();
-        } else {
-          data[element.id] = element.value;
-        }
-      }
-    }
-    const parse = await updateBookingSchema.safeParseAsync(data);
-
-    if (!parse.success) {
-      console.log(parse.error.errors);
-    }
-
-    if (parse.success) {
-      if (parse.data.status == "Cancelado") {
-        alert("Reserva Cancelada");
-      }
-
-      if (parse.data.status != "Cancelado") {
-        parse.data.status = "Ativa";
-
-        const response = await fetch(
-          `http://${BACKEND_URL}/bookings/${data.uuid}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(parse.data),
-          }
-        );
-
-        if (response.status === 204) {
-          window.location.href = "/reservas";
         }
       }
     }
