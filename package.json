@@ -11,14 +11,15 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@astrojs/check": "0.7.0",
-    "@astrojs/tailwind": "5.1.0",
-    "astro": "4.10.2",
+    "@astrojs/check": "0.9.4",
+    "@astrojs/tailwind": "5.1.2",
+    "astro": "4.16.13",
     "tailwindcss": "3.4.4",
     "typescript": "5.4.5",
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "prettier": "^3.3.3",
     "tsx": "^4.15.4",
     "vitest": "^1.6.0"
   }
