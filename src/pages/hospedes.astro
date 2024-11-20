@@ -6,13 +6,7 @@ import TextInput from "../components/TextInput.astro";
 import Layout from "../layouts/Layout.astro";
 import { guestSchema } from "../schemas/schemas";
 
-let BACKEND_URL = "127.0.0.1";
-
-if (import.meta.env.PROD) {
-  BACKEND_URL = "89.117.33.177";
-}
-
-const response = await fetch(`http://${BACKEND_URL}/guests`);
+const response = await fetch(`http://backend:8050/guests`);
 const data = await response.json();
 const parsedData = await guestSchema.array().parseAsync(data["guests"]);
 
@@ -109,7 +103,7 @@ let columns = ["Documento", "Nome", "País", "Telefone"];
         modal.showModal();
 
         const response = await fetch(
-          `http://${BACKEND_URL}/guests/${doc.trim()}`
+          `http://backend:8050/guests/${doc.trim()}`
         );
         const data = await response.json();
 
@@ -146,7 +140,7 @@ let columns = ["Documento", "Nome", "País", "Telefone"];
     };
     const data = creationalGuestSchema.parse(formData);
 
-    const response = await fetch(`http://${BACKEND_URL}/guests/${ulid}`, {
+    const response = await fetch(`http://backend:8050/guests/${ulid}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -162,7 +156,7 @@ let columns = ["Documento", "Nome", "País", "Telefone"];
   deleteButton.addEventListener("click", async () => {
     const element = form.elements.namedItem("ulid") as HTMLInputElement;
     const ulid = element.value;
-    const response = await fetch(`http://${BACKEND_URL}/guests/${ulid}`, {
+    const response = await fetch(`http://backend:8050/guests/${ulid}`, {
       method: "DELETE",
     });
     if (response.status === 200) {

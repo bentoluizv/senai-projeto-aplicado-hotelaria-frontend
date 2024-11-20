@@ -6,13 +6,7 @@ import TextInput from "../../components/TextInput.astro";
 import Layout from "../../layouts/Layout.astro";
 import { accommodationSchema } from "../../schemas/schemas";
 
-let BACKEND_URL = "127.0.0.1";
-
-if (import.meta.env.PROD) {
-  BACKEND_URL = "89.117.33.177";
-}
-
-const response = await fetch(`http://${BACKEND_URL}/accommodations`);
+const response = await fetch(`http://backend:8050/accommodations`);
 const data = await response.json();
 
 const accommodations = await accommodationSchema
@@ -23,7 +17,6 @@ const avaliableAccommodationsName = accommodations
   .filter((accommodation) => accommodation.status == "avaiable")
   .map(({ name }) => name);
 
-console.log(avaliableAccommodationsName);
 const today = new Date().toISOString().split("T")[0];
 ---
 
@@ -85,13 +78,7 @@ const today = new Date().toISOString().split("T")[0];
   import { creationalBookingSchema } from "../../schemas/schemas";
   import { getFormData } from "../../utils/getFormData";
 
-  let BACKEND_URL = "127.0.0.1";
-
-  if (import.meta.env.PROD) {
-    BACKEND_URL = "89.117.33.177";
-  }
-
-  const response = await fetch(`http://${BACKEND_URL}/accommodations/`);
+  const response = await fetch(`http://backend:8050/accommodations/`);
   const { accommodations } = await response.json();
 
   const inputGuestDocument = document.getElementById(
@@ -104,7 +91,7 @@ const today = new Date().toISOString().split("T")[0];
       .replaceAll(".", "")
       .replace("-", "");
 
-    const response = await fetch(`http://${BACKEND_URL}/guests/${doc}`);
+    const response = await fetch(`http://backend:8050/guests/${doc}`);
 
     if (response.status == 200) {
       const data = await response.json();
@@ -132,9 +119,7 @@ const today = new Date().toISOString().split("T")[0];
     const { ulid } = accommodations.find(
       (element: any) => element.name == name
     );
-    const response = await fetch(
-      `http://${BACKEND_URL}/accommodations/${ulid}`
-    );
+    const response = await fetch(`http://backend:8050/accommodations/${ulid}`);
 
     const data = await response.json();
     for (const [key, value] of Object.entries(data)) {
@@ -221,7 +206,7 @@ const today = new Date().toISOString().split("T")[0];
     };
     const parsedData = creationalBookingSchema.parse(data);
 
-    const response = await fetch(`http://${BACKEND_URL}/bookings`, {
+    const response = await fetch(`http://backend:8050/bookings`, {
       body: JSON.stringify(parsedData),
       method: "POST",
       headers: { "Content-Type": "application/json" },

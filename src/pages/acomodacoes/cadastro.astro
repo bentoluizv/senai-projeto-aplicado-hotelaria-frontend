@@ -5,16 +5,10 @@ import NumberInputSmall from "../../components/NumberInputSmall.astro";
 import TextInput from "../../components/TextInput.astro";
 import Layout from "../../layouts/Layout.astro";
 
-let BACKEND_URL = "127.0.0.1";
-
-if (import.meta.env.PROD) {
-  BACKEND_URL = "89.117.33.177";
-}
-
 type AmenitieList = {
   amenities: { id: string; name: string }[];
 };
-const response = await fetch(`http://${BACKEND_URL}/amenities`);
+const response = await fetch(`http://backend:8050/amenities`);
 const data: AmenitieList = await response.json();
 const amenities = data["amenities"];
 ---
@@ -57,12 +51,6 @@ const amenities = data["amenities"];
   import { creationalAccommodationSchema } from "../../schemas/schemas";
   import { getFormData } from "../../utils/getFormData";
 
-  let BACKEND_URL = "127.0.0.1";
-
-  if (import.meta.env.PROD) {
-    BACKEND_URL = "89.117.33.177";
-  }
-
   const form = document.getElementById(
     "new-accommodation-form"
   ) as HTMLFormElement;
@@ -91,7 +79,7 @@ const amenities = data["amenities"];
     }
 
     if (parse.success) {
-      const response = await fetch(`http://${BACKEND_URL}/accommodations`, {
+      const response = await fetch(`http://backend:8050/accommodations`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

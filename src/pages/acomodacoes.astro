@@ -8,12 +8,7 @@ import TextInputSmall from "../components/TextInputSmall.astro";
 import Layout from "../layouts/Layout.astro";
 import { accommodationSchema } from "../schemas/schemas";
 
-let BACKEND_URL = "127.0.0.1";
-
-if (import.meta.env.PROD) {
-  BACKEND_URL = "89.117.33.177";
-}
-const response = await fetch(`http://${BACKEND_URL}/accommodations`);
+const response = await fetch(`http://backend:8050/accommodations`);
 const data = await response.json();
 const parsedData = await accommodationSchema
   .array()
@@ -33,10 +28,9 @@ const tableData = parsedData.map((accommodation) => {
 
 let columns = ["Nome", "Status", "Preço"];
 
-const amenitieResponse = await fetch(`http://${BACKEND_URL}/amenities`);
+const amenitieResponse = await fetch(`http://backend:8050/amenities`);
 
 const amenties_data = await amenitieResponse.json();
-console.log(amenties_data);
 const amenities: { id: number; name: string }[] = amenties_data["amenities"];
 ---
 
@@ -153,7 +147,7 @@ const amenities: { id: number; name: string }[] = amenties_data["amenities"];
         modal.showModal();
 
         const accommodationResponse = await fetch(
-          `http://${BACKEND_URL}/accommodations/${ulid.trim()}`
+          `http://backend:8050/accommodations/${ulid.trim()}`
         );
         const data = await accommodationResponse.json();
 
@@ -224,18 +218,13 @@ const amenities: { id: number; name: string }[] = amenties_data["amenities"];
 
     const ulid = ulidInput.value;
 
-    console.log(parsedData);
-
-    const response = await fetch(
-      `http://${BACKEND_URL}/accommodations/${ulid}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(parsedData),
-      }
-    );
+    const response = await fetch(`http://backend:8050/accommodations/${ulid}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(parsedData),
+    });
 
     if (response.status === 200) {
       window.location.href = "/acomodacoes";
@@ -247,9 +236,8 @@ const amenities: { id: number; name: string }[] = amenties_data["amenities"];
   deleteButton.addEventListener("click", async () => {
     const element = form.elements.namedItem("ulid") as HTMLInputElement;
     const accommodationId = element.value;
-    console.log(accommodationId);
     const response = await fetch(
-      `http://${BACKEND_URL}/accommodations/${accommodationId}`,
+      `http://backend:8050/accommodations/${accommodationId}`,
       { method: "DELETE" }
     );
 
@@ -273,7 +261,7 @@ const amenities: { id: number; name: string }[] = amenties_data["amenities"];
     const data = {
       name: nameInput.value,
     };
-    const response = await fetch(`http://${BACKEND_URL}/amenities`, {
+    const response = await fetch(`http://backend:8050/amenities`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

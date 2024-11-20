@@ -7,8 +7,18 @@ interface User {
   role?: "USER" | "ADMIN";
 }
 
+interface Token {
+  access_token: string;
+  token_type: string;
+}
+
+interface TokenWithExp extends Token {
+  exp: number;
+}
+
 declare namespace App {
   interface Locals {
     user?: User;
+    token?: Token;
   }
 }

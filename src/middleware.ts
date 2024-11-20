@@ -1,28 +1,29 @@
+import { actions } from "astro:actions";
 import { defineMiddleware } from "astro:middleware";
-import { verifyToken } from "./lib/auth";
 
 export const onRequest = defineMiddleware(async (context, next) => {
-  const { request, redirect, cookies } = context;
+  const { redirect, cookies, url, callAction } = context;
 
-  const token = cookies.get("token")?.value;
+  const protectedPaths = [
+    "/",
+    "/hospedes",
+    "/hospedes/cadastro",
+    "/acomodacoes",
+    "/acomodacoes/cadastro",
+    "/reservas",
+    "/reservas/cadastro",
+  ];
 
-  const publicRoutes = ["/login"];
-  const url = new URL(request.url);
+  if (protectedPaths.includes(url.pathname)) {
+    const tokenCookie = cookies.get("token");
 
-  if (publicRoutes.includes(url.pathname)) {
-    return next();
-  }
-
-  const verification = await verifyToken(token);
-
-  if (!verification.isValid) {
-    if (token) {
-      context.cookies.delete("token", { path: "/" });
+    if (!tokenCookie) {
+      return redirect("/login");
     }
-    return redirect("/login");
-  }
 
-  context.locals.user = verification.user;
+    const token: Token = tokenCookie.json();
+    await callAction(actions.refreshToken, token);
+  }
 
   return next();
 });
