@@ -22,7 +22,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
 
     const token: Token = tokenCookie.json();
-    await callAction(actions.refreshToken, token);
+    const { _, error } = await callAction(actions.refreshToken, token);
+
+    if (error) {
+      return redirect("/login");
+    }
   }
 
   return next();
