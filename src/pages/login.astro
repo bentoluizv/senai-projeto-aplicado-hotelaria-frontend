@@ -7,17 +7,31 @@ const tokenCookie = Astro.cookies.get("token");
 
 if (tokenCookie) {
   const token = tokenCookie.json();
-  await Astro.callAction(actions.refreshToken, token);
+  await Astro.callAction(actions.refreshTokenAction, token);
   return Astro.redirect("/");
+}
+
+if (Astro.request.method === "POST") {
+  const formData = await Astro.request.formData();
+  const { data, error } = await Astro.callAction(actions.loginAction, formData);
+
+  if (error) {
+    console.error("Oops, there was a problem in you login attempt!!", error);
+
+    return Astro.redirect("/login");
+  } else {
+    return Astro.redirect("/");
+  }
 }
 ---
 
 <LoginLayout>
   <form
     method="POST"
-    action="/api/login"
-    class="bg-zinc-800 text-amber-50 shadow-lg rounded-lg p-8 space-y-6 w-full max-w-md z-10">
-    <h1 class="text-2xl font-bold text-center mb-6">Faça seu login</h1>
+    class="bg-zinc-800/90 text-amber-50 shadow-lg rounded-lg p-8 space-y-6 w-full max-w-md z-10">
+    <h1 aria-hidden="true" hidden class="text-2xl font-bold text-center mb-6">
+      Faça seu login
+    </h1>
 
     <div>
       <label for="username" class="block text-sm font-medium text-amber-50">
