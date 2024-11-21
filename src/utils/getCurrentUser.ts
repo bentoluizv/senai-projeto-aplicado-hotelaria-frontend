@@ -7,15 +7,10 @@ type User = {
 };
 
 export const getCurrentUser = async (cookies: AstroCookies) => {
-  const now = Date.now();
   const jwtToken = cookies.get("token")?.json() as TokenWithExp;
 
   if (!jwtToken) {
     throw new Error("Token Not Found");
-  }
-
-  if (jwtToken.exp < now) {
-    throw new Error("Expired Token");
   }
 
   const response = await fetch("http://backend:8050/auth/current", {
