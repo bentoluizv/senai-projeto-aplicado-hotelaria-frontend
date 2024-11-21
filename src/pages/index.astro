@@ -1,118 +1,44 @@
 ---
-import SmallForm from "../components/SmallForm.astro";
-import TextInput from "../components/TextInput.astro";
 import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout>
-  <h1 class="self-center mt-12">Busca por Hóspedes ou Reservas</h1>
-  <div class="mt-24 ml-12 mr-12 flex p-4 justify-center gap-3">
-    <select
-      class="p-4 border-solid border border-zinc-300 rounded-sm appearance-none"
-      id="select_group">
-      <option value="reserva">Reserva</option>
-    </select>
-    <input
-      class="grow p-4 border-solid border border-zinc-300 rounded-sm appearance-none cursor-pointer"
-      id="search_field"
-      type="text"
-      placeholder="Insira o localizador da reserva"
-    />
-    <button
-      type="button"
-      class="bg-transparent hover:bg-amber-500 text-amber-700 font-semibold hover:text-white py-2 px-6 border border-amber-500 hover:border-transparent rounded"
-      id="search_btn">
-      Procurar
-    </button>
-  </div>
-  <a
-    href="/reservas/cadastro"
-    class="mt-20 w-64 self-center bg-amber-500 hover:bg-amber-700 text-white font-bold py-4 text-center border border-amber-700 rounded"
-    >Faça uma reserva!</a
-  >
-  <dialog
-    id="booking_modal"
-    class="p-4 bg-amber-50 text-zinc-700 text-lg font-['Poppins']">
-    <SmallForm id="update-booking-form">
-      <div slot="inputs" class="flex flex-col items-center grow">
-        <TextInput hidden id="uuid" label="uuid" />
-        <div class="w-full grid grid-cols-3 p-4">
-          <TextInput disabled id="locator" label="Localizador" />
-          <TextInput disabled id="status" label="Status" />
-          <TextInput disabled id="budget" label="Valor" />
-        </div>
-        <div class="w-full grid grid-cols-3 p-4">
-          <TextInput disabled id="accommodation_id" label="Acomodação" />
-          <TextInput disabled id="guest_document" label="Documento" />
-          <TextInput disabled id="guest_name" label="Nome" />
-        </div>
-
-        <div class="w-full grid grid-cols-2 p-4 gap-4">
-          <TextInput disabled id="check_in" label="Check In" />
-          <TextInput disabled id="check_out" label="Check Out" />
-        </div>
-
-        <div class="w-full p-4 grid grid-cols-3 gap-8">
-          <button
-            id="check_in_btn"
-            type="button"
-            class="bg-green-600 hover:bg-green-400 text-white hover:text-zinc-800 font-bold px-12 py-2 rounded-md mb-2 w-full">
-            Fazer Check In
-          </button>
-          <button
-            id="cancel_btn"
-            type="button"
-            class="bg-red-600 hover:bg-red-400 text-white hover:text-zinc-800 font-bold px-12 py-2 rounded-md mb-2 w-full">
-            Cancelar
-          </button>
-          <a
-            href="/"
-            id="back_btn"
-            type="button"
-            class="bg-zinc-600 hover:bg-zinc-400 text-white hover:text-zinc-800 font-bold py-2 text-center rounded-md mb-2 w-full">
-            Voltar
-          </a>
-        </div>
+  <main class="p-4 grow flex flex-col items-center justify-center gap-24">
+    <h1 aria-hidden="true" hidden>Busca por Hóspede</h1>
+    <div class="flex flex-col md:flex-row items-center gap-2 w-full max-w-2xl">
+      <div class="flex flex-col w-full md:w-5/6 grow">
+        <label hidden for="search_field">Documento</label>
+        <input
+          id="search_field"
+          type="text"
+          name="documento"
+          placeholder="Insira o documento do hóspede"
+          class="w-full px-4 py-3 text-zinc-800 border border-zinc-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none placeholder-zinc-400 shadow-sm"
+        />
       </div>
-    </SmallForm>
-  </dialog>
+      <button
+        type="button"
+        id="search_btn"
+        class="w-full md:w-1/6 bg-amber-400 text-zinc-800 font-semibold px-4 py-3 rounded-lg hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all duration-300 shadow-md">
+        Procurar
+      </button>
+    </div>
+  </main>
 </Layout>
 
 <script>
-  let BACKEND_URL = "127.0.0.1";
+  const searchButton = document.getElementById(
+    "search_btn"
+  ) as HTMLButtonElement;
 
-  if (import.meta.env.PROD) {
-    BACKEND_URL = "89.117.33.177";
-  }
+  const searchField = document.getElementById(
+    "search_field"
+  ) as HTMLInputElement;
 
-  const searchBtn = document.getElementById("search_btn") as HTMLButtonElement;
+  searchButton.addEventListener("click", (event) => {
+    event.preventDefault();
 
-  searchBtn.addEventListener("click", async () => {
-    const searchField = document.getElementById(
-      "search_field"
-    ) as HTMLInputElement;
-    const locator = searchField.value;
-    const response = await fetch(
-      `http://${BACKEND_URL}/bookings/${locator.trim()}`
-    );
-    const data = await response.json();
-    (document.getElementById("status") as HTMLInputElement).value = data.status;
-    (document.getElementById("budget") as HTMLInputElement).value = data.budget;
-    (document.getElementById("guest_document") as HTMLInputElement).value =
-      data.guest.document;
-    (document.getElementById("guest_name") as HTMLInputElement).value =
-      data.guest.name;
-    (document.getElementById("accommodation_id") as HTMLInputElement).value =
-      `${data.accommodation.id} - ${data.accommodation.name}`;
-    (document.getElementById("check_in") as HTMLInputElement).value =
-      data.check_in;
-    (document.getElementById("check_out") as HTMLInputElement).value =
-      data.check_out;
-    (document.getElementById("uuid") as HTMLInputElement).value = data.uuid;
-    (document.getElementById("locator") as HTMLInputElement).value =
-      data.locator;
-    const modal = document.getElementById("booking_modal") as HTMLDialogElement;
-
-    modal.showModal();
+    const value = searchField.value;
+    const urlParams = new URLSearchParams();
   });
 </script>
