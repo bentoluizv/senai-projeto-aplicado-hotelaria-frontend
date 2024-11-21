@@ -1,5 +1,4 @@
-export const getLoginFormData = async (request: Request) => {
-  const formData = await request.formData();
+export const getLoginFormData = async (formData: FormData) => {
   const username = formData.get("username")?.toString();
   const password = formData.get("password")?.toString();
 
