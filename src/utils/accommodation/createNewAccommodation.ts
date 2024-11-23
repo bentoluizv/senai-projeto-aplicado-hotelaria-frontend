@@ -23,6 +23,6 @@ export const createNewAccommodation = async (
     );
   }
 
-  const data = await response.json();
+  const data: { message: string } = await response.json();
   return data;
 };
