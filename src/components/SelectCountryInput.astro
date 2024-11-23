@@ -23,10 +23,7 @@ const { selected } = Astro.props;
     <option disabled selected={!selected} class="country">Selecione</option>
     {
       countries.map((country) => (
-        <option
-          class="country"
-          selected={country === selected}
-          value={selected}>
+        <option class="country" selected={country === selected} value={country}>
           {country}
         </option>
       ))
