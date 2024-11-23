@@ -1,16 +1,15 @@
 ---
 type Props = {
   id: string;
-  method: "POST" | "PUT";
 };
 
-const { id, method } = Astro.props;
+const { id } = Astro.props;
 ---
 
 <form
   id={id}
   class="flex flex-col w-full h-full justify-between gap-4 max-w-md"
-  method={method}>
+  method="POST">
   <slot name="inputs" />
   <slot name="buttons" />
 </form>
