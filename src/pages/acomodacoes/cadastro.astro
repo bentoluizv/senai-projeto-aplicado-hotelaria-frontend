@@ -1,17 +1,40 @@
 ---
+import { undefined } from "astro:schema";
+import { createNewAccommodationAction } from "../../actions/accommodation/createNewAccommodationAction";
+import { listAllAmenitiesAction } from "../../actions/amenities/listAllAmenitiesAction";
 import CheckboxInput from "../../components/CheckboxInput.astro";
 import Form from "../../components/Form.astro";
 import NumberInput from "../../components/NumberInput.astro";
-import NumberInputSmall from "../../components/NumberInputSmall.astro";
 import TextInput from "../../components/TextInput.astro";
 import Layout from "../../layouts/Layout.astro";
 
-type AmenitieList = {
-  amenities: { id: string; name: string }[];
-};
-const response = await fetch(`http://backend:8050/amenities`);
-const data: AmenitieList = await response.json();
-const amenities = data["amenities"];
+const { request, callAction, redirect } = Astro;
+
+const { data, error } = await callAction(listAllAmenitiesAction, undefined);
+
+if (error) {
+  console.log(error);
+  throw new Error("Unable to fetch amenities");
+}
+
+const amenities = data;
+
+if (request.method == "POST") {
+  const formData = await request.formData();
+
+  const { data, error } = await callAction(
+    createNewAccommodationAction,
+    formData
+  );
+
+  if (error) {
+    console.log(error);
+    return Astro.redirect("/acomodacoes/cadastro");
+  }
+
+  console.log(data);
+  return redirect("/acomodacoes");
+}
 ---
 
 <Layout>
@@ -50,49 +73,3 @@ const amenities = data["amenities"];
     </Form>
   </main>
 </Layout>
-
-<script>
-  import { creationalAccommodationSchema } from "../../schemas/accommodation";
-  import { getFormData } from "../../utils/getFormData";
-
-  const form = document.getElementById(
-    "new-accommodation-form"
-  ) as HTMLFormElement;
-
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
-
-    const formData = getFormData(form);
-
-    const amenities = [];
-    const data: any = {};
-
-    for (const [key, value] of Object.entries(formData)) {
-      if (value == "on") {
-        amenities.push(key);
-      } else {
-        data[key] = value;
-      }
-    }
-    data.amenities = amenities;
-
-    const parse = await creationalAccommodationSchema.safeParseAsync(data);
-    console.log(parse.data);
-    if (!parse.success) {
-      console.log(parse.error.errors);
-    }
-
-    if (parse.success) {
-      const response = await fetch(`http://backend:8050/accommodations`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(parse.data),
-      });
-      if (response.status === 201) {
-        window.location.href = "/acomodacoes";
-      }
-    }
-  });
-</script>
