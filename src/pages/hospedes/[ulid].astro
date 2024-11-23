@@ -8,7 +8,7 @@ import Form from "../../components/Form.astro";
 import SelectCountryInput from "../../components/SelectCountryInput.astro";
 import TextInput from "../../components/TextInput.astro";
 import Layout from "../../layouts/Layout.astro";
-import type { Guest } from "../../schemas/schemas";
+import { type Guest } from "../../schemas/schemas";
 
 const { ulid } = Astro.params;
 
@@ -27,16 +27,13 @@ if (result.error) {
 }
 
 const guest = result.data;
-
-if (Astro.request.method == "POST") {
-}
 ---
 
 <Layout>
   <main class="grow flex flex-col items-center">
     <Form id="update-guest-form">
       <div slot="inputs" class="flex flex-col w-full max-w-lg mx-auto">
-        <TextInput disabled id="ulid" label="ID" value={guest.ulid} />
+        <TextInput hidden id="ulid" label="ID" value={guest.ulid} />
         <TextInput id="document" label="Documento" value={guest.document} />
         <TextInput id="name" label="Nome" value={guest.name} />
         <TextInput id="surname" label="Sobrenome" value={guest.surname} />
@@ -75,21 +72,56 @@ if (Astro.request.method == "POST") {
   import { actions } from "astro:actions";
   import { navigate } from "astro:transitions/client";
 
-  const deleteBtnElement = document.getElementById(
-    "delete_button"
-  ) as HTMLButtonElement;
+  handleDelete();
+  handleUpdate();
 
-  deleteBtnElement.addEventListener("click", async (event) => {
-    const urlSegments = document.location.pathname.split("/");
-    const ulid = urlSegments[urlSegments.length - 1];
+  function handleDelete() {
+    const deleteBtnElement = document.getElementById(
+      "delete_button"
+    ) as HTMLButtonElement;
 
-    const result = await actions.deleteGuestAction({ ulid });
+    deleteBtnElement.addEventListener("click", async (event) => {
+      const urlSegments = document.location.pathname.split("/");
+      const ulid = urlSegments[urlSegments.length - 1];
 
-    if (result.error) {
-      console.log(result.error);
-      throw new Error("Not possible to delete guest");
-    }
+      const result = await actions.deleteGuestAction({ ulid });
 
-    return navigate("/hospedes");
-  });
+      if (result.error) {
+        console.log(result.error);
+        throw new Error("Not possible to delete guest");
+      }
+
+      return navigate("/hospedes");
+    });
+  }
+
+  function handleUpdate() {
+    const formElement = document.getElementById(
+      "update-guest-form"
+    ) as HTMLFormElement;
+
+    formElement.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const countrySelect = document.getElementById(
+        "country"
+      ) as HTMLSelectElement;
+      const selectedCountry = countrySelect.value;
+
+      const formData = new FormData(formElement);
+      const obj: any = {};
+
+      formData.forEach((valor, chave) => {
+        obj[chave] = valor;
+      });
+
+      const result = await actions.updateGuestAction(formData);
+
+      if (result.error) {
+        console.log(result.error);
+        throw new Error("Not possible to update guest");
+      }
+
+      return navigate("/hospedes");
+    });
+  }
 </script>
