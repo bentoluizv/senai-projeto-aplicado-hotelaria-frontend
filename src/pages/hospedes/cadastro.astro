@@ -20,7 +20,7 @@ if (Astro.request.method == "POST") {
 
 <Layout>
   <main class="grow flex flex-col items-center">
-    <Form id="new-guest-form">
+    <Form method="POST" id="new-guest-form">
       <div slot="inputs" class="flex flex-col p-4">
         <TextInput id="document" label="Documento" />
         <TextInput id="name" label="Nome" />
