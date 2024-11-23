@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { formatPhoneNumber } from "../utils/formatPhoneNumber";
 
 export const guestSchema = z.object({
   ulid: z.string().ulid(),
@@ -7,10 +6,7 @@ export const guestSchema = z.object({
   name: z.string().trim(),
   surname: z.string().trim(),
   country: z.string().trim(),
-  phone: z
-    .string()
-    .trim()
-    .transform((phone) => formatPhoneNumber(phone)),
+  phone: z.string().trim(),
 });
 
 export type Guest = z.infer<typeof guestSchema>;
@@ -32,6 +28,7 @@ export const creationalGuestSchema = z.object({
 export type CreationalGuestDTO = z.infer<typeof creationalGuestSchema>;
 
 export const updateGuestSchema = z.object({
+  ulid: z.string().ulid(),
   document: z.string().optional(),
   name: z.string().optional(),
   surname: z.string().optional(),
