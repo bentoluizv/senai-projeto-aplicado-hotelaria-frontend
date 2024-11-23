@@ -26,16 +26,23 @@ export const creationalGuestSchema = z.object({
   phone: z
     .string()
     .trim()
-    .transform((phone) =>
-      phone
-        .replaceAll(" ", "")
-        .replaceAll("-", "")
-        .replaceAll("(", "")
-        .replaceAll(")", "")
-    ),
+    .transform((phone) => transformPhone(phone)),
 });
 
 export type CreationalGuestDTO = z.infer<typeof creationalGuestSchema>;
+
+export const updateGuestSchema = z.object({
+  document: z.string().optional(),
+  name: z.string().optional(),
+  surname: z.string().optional(),
+  country: z.string().optional(),
+  phone: z
+    .string()
+    .optional()
+    .transform((phone) => (phone ? transformPhone(phone) : undefined)),
+});
+
+export type UpdateGuestDTO = z.infer<typeof updateGuestSchema>;
 
 export const accommodationSchema = z.object({
   ulid: z.string().ulid(),
@@ -102,3 +109,10 @@ export const userSchema = z.object({
 });
 
 export type User = z.infer<typeof userSchema>;
+
+const transformPhone = (phone: string) =>
+  phone
+    .replaceAll(" ", "")
+    .replaceAll("-", "")
+    .replaceAll("(", "")
+    .replaceAll(")", "");
