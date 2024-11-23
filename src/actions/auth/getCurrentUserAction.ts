@@ -11,7 +11,6 @@ export const getCurrentUserAction = defineAction({
     const token = tokenCookie.json();
 
     const user = await getCurrentUser(token);
-    console.log(user);
     return user;
   },
 });
