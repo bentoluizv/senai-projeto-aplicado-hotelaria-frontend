@@ -43,3 +43,25 @@ let columns = ["Documento", "Nome", "País", "Telefone"];
     </a>
   </main>
 </Layout>
+
+<script>
+  import { navigate } from "astro:transitions/client";
+
+  const tableBody = document.getElementById("table_content");
+
+  if (tableBody) {
+    tableBody.addEventListener("click", (event) => {
+      const target = event.target as HTMLElement;
+      const row = target.closest("tr");
+
+      if (row) {
+        const ulidCell = row.querySelector(".ulid_hidden_col");
+        const ulidValue = ulidCell ? ulidCell.textContent : null;
+
+        if (ulidValue) {
+          return navigate(`/hospedes/${ulidValue.trim()}`);
+        }
+      }
+    });
+  }
+</script>
