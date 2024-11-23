@@ -21,8 +21,6 @@ export const listAllAmenities = async (token: Token) => {
 
   const data = await response.json();
 
-  const accommodations = await amenittieSchema
-    .array()
-    .parseAsync(data["amenities"]);
-  return accommodations;
+  const amenities = await amenittieSchema.array().parseAsync(data["amenities"]);
+  return amenities;
 };
