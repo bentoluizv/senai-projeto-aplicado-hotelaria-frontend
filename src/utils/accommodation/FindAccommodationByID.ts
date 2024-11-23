@@ -1,7 +1,7 @@
 import { accommodationSchema } from "../../schemas/accommodation";
 
 export const findAccommodationByUlid = async (token: Token, ulid: string) => {
-  const response = await fetch(`http://backend:8050/accommodation/${ulid}`, {
+  const response = await fetch(`http://backend:8050/accommodations/${ulid}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
