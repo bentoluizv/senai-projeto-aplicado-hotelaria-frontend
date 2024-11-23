@@ -1,5 +1,5 @@
 import { defineAction } from "astro:actions";
-import { getAllGuests } from "../utils/getAllGuests";
+import { getAllGuests } from "../../utils/getAllGuests";
 
 const getAllGuestsAction = defineAction({
   handler: async (_, ctx) => {

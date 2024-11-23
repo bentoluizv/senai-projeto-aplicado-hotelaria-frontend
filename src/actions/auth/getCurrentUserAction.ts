@@ -1,5 +1,5 @@
 import { defineAction } from "astro:actions";
-import { getCurrentUser } from "../utils/getCurrentUser";
+import { getCurrentUser } from "../../utils/getCurrentUser";
 
 export const getCurrentUserAction = defineAction({
   handler: async (_, { cookies }) => {

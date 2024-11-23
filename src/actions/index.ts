@@ -1,10 +1,10 @@
-import { createNewGuestAction } from "./createNewGuestAction";
-import { deleteGuestAction } from "./deleteGuestAction";
-import { findGuestByIDAction } from "./findGuestByIDAction";
-import { getAllGuestsAction } from "./getAllGuestsAction";
-import { getCurrentUserAction } from "./getCurrentUserAction";
-import { loginAction } from "./loginAction";
-import { refreshTokenAction } from "./refreshTokenAction";
+import { getCurrentUserAction } from "./auth/getCurrentUserAction";
+import { loginAction } from "./auth/loginAction";
+import { refreshTokenAction } from "./auth/refreshTokenAction";
+import { createNewGuestAction } from "./guest/createNewGuestAction";
+import { deleteGuestAction } from "./guest/deleteGuestAction";
+import { findGuestByIDAction } from "./guest/findGuestByIDAction";
+import { getAllGuestsAction } from "./guest/getAllGuestsAction";
 
 export const server = {
   refreshTokenAction,

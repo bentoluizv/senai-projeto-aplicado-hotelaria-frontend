@@ -1,6 +1,6 @@
 import { defineAction } from "astro:actions";
 import { z } from "astro:schema";
-import { deleteGuest } from "../utils/deleteGuest";
+import { deleteGuest } from "../../utils/deleteGuest";
 
 const ulidSchema = z.object({
   ulid: z.string().ulid(),

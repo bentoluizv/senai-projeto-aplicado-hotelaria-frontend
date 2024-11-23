@@ -1,6 +1,6 @@
 import { defineAction } from "astro:actions";
 import { z } from "astro:schema";
-import { findGuestByID } from "../utils/FindGuestByID";
+import { findGuestByID } from "../../utils/FindGuestByID";
 
 const ulidSchema = z.object({
   ulid: z.string().ulid(),
