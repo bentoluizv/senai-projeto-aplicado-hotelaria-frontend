@@ -7,8 +7,10 @@ import { type Guest } from "../../schemas/schemas";
 const result = await Astro.callAction(actions.getAllGuestsAction, undefined);
 
 const { data, error } = result;
+
 if (error) {
-  throw new Error("Not possible to list all guests");
+  console.log(error);
+  return Astro.redirect("/");
 }
 
 const tableData = data.map((guest: Guest) => {
