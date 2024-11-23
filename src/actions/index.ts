@@ -5,6 +5,7 @@ import { createNewGuestAction } from "./guest/createNewGuestAction";
 import { deleteGuestAction } from "./guest/deleteGuestAction";
 import { findGuestByIDAction } from "./guest/findGuestByIDAction";
 import { getAllGuestsAction } from "./guest/getAllGuestsAction";
+import { updateGuestAction } from "./guest/updateGuestAction";
 
 export const server = {
   refreshTokenAction,
@@ -14,4 +15,5 @@ export const server = {
   createNewGuestAction,
   findGuestByIDAction,
   deleteGuestAction,
+  updateGuestAction,
 };
