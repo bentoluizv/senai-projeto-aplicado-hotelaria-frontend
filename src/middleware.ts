@@ -53,7 +53,7 @@ const getUserMiddleware = defineMiddleware(async (context, next) => {
       return redirect("/login");
     }
 
-    // locals.user = data;
+    locals.user = data;
   }
 
   return next();
