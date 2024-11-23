@@ -1,4 +1,4 @@
-import { guestSchema } from "../../schemas/schemas";
+import { guestSchema } from "../../schemas/guest";
 
 export const findGuestByID = async (token: Token, ulid: string) => {
   const response = await fetch(`http://backend:8050/guests/${ulid}`, {

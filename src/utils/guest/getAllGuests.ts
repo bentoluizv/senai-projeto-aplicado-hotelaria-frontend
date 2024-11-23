@@ -1,5 +1,5 @@
 import type { AstroCookies } from "astro";
-import { guestSchema } from "../../schemas/schemas";
+import { guestSchema } from "../../schemas/guest";
 
 export const getAllGuests = async (cookies: AstroCookies) => {
   const token = cookies.get("token")?.json() as Token;

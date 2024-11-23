@@ -1,5 +1,5 @@
 import { defineAction } from "astro:actions";
-import { updateGuestSchema } from "../../schemas/schemas";
+import { updateGuestSchema } from "../../schemas/guest";
 import { updateGuest } from "../../utils/guest/updateGuest";
 
 export const updateGuestAction = defineAction({

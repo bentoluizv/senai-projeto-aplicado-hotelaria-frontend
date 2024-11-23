@@ -1,5 +1,5 @@
 import { defineAction } from "astro:actions";
-import { creationalGuestSchema } from "../../schemas/schemas";
+import { creationalGuestSchema } from "../../schemas/guest";
 import { createNewGuest } from "../../utils/guest/createNewGuest";
 
 const createNewGuestAction = defineAction({

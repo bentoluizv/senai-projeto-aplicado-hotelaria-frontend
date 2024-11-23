@@ -1,4 +1,4 @@
-import { userSchema } from "../../schemas/schemas";
+import { userSchema } from "../../schemas/user";
 
 export const getCurrentUser = async (token: Token) => {
   const response = await fetch("http://backend:8050/auth/current", {

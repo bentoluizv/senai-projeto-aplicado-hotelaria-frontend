@@ -4,7 +4,7 @@ import SelectInput from "../../components/SelectInput.astro";
 import SmallForm from "../../components/SmallForm.astro";
 import TextInput from "../../components/TextInput.astro";
 import Layout from "../../layouts/Layout.astro";
-import { accommodationSchema } from "../../schemas/schemas";
+import { accommodationSchema } from "../../schemas/accommodation";
 
 const response = await fetch(`http://backend:8050/accommodations`);
 const data = await response.json();
@@ -75,7 +75,7 @@ const today = new Date().toISOString().split("T")[0];
 </Layout>
 
 <script>
-  import { creationalBookingSchema } from "../../schemas/schemas";
+  import { creationalBookingSchema } from "../../schemas/booking";
   import { getFormData } from "../../utils/getFormData";
 
   const response = await fetch(`http://backend:8050/accommodations/`);

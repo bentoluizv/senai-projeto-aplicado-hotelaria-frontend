@@ -2,7 +2,7 @@
 import { actions } from "astro:actions";
 import Table from "../../components/Table.astro";
 import Layout from "../../layouts/Layout.astro";
-import { type Guest } from "../../schemas/schemas";
+import type { Guest } from "../../schemas/guest";
 
 const result = await Astro.callAction(actions.getAllGuestsAction, undefined);
 
