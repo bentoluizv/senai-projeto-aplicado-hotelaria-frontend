@@ -1,6 +1,6 @@
 import { defineAction } from "astro:actions";
 import { creationalGuestSchema } from "../../schemas/schemas";
-import { createNewGuest } from "../../utils/createNewGuest";
+import { createNewGuest } from "../../utils/guest/createNewGuest";
 
 const createNewGuestAction = defineAction({
   accept: "form",

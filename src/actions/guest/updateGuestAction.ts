@@ -1,6 +1,6 @@
 import { defineAction } from "astro:actions";
 import { updateGuestSchema } from "../../schemas/schemas";
-import { updateGuest } from "../../utils/updateGuest";
+import { updateGuest } from "../../utils/guest/updateGuest";
 
 export const updateGuestAction = defineAction({
   accept: "form",

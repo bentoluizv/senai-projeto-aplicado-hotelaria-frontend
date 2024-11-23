@@ -1,7 +1,7 @@
 import { defineAction } from "astro:actions";
+import { loginForAccessToken } from "../../utils/auth/loginForAccessToken";
+import { setSecureToken } from "../../utils/auth/setSecureToken";
 import { getLoginFormData } from "../../utils/getLoginFormData";
-import { loginForAccessToken } from "../../utils/loginForAccessToken";
-import { setSecureToken } from "../../utils/setSecureToken";
 
 const loginAction = defineAction({
   accept: "form",

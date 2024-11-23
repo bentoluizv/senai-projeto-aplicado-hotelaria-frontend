@@ -1,5 +1,5 @@
 import type { AstroCookies } from "astro";
-import { type CreationalGuestDTO } from "../schemas/schemas";
+import { type CreationalGuestDTO } from "../../schemas/schemas";
 
 export const createNewGuest = async (
   cookies: AstroCookies,

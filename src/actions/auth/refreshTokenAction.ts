@@ -1,7 +1,7 @@
 import { defineAction } from "astro:actions";
 import { z } from "astro:schema";
-import { getRefreshedToken } from "../../utils/refreshToken";
-import { setSecureToken } from "../../utils/setSecureToken";
+import { getRefreshedToken } from "../../utils/auth/refreshToken";
+import { setSecureToken } from "../../utils/auth/setSecureToken";
 
 const token = z.object({
   access_token: z.string(),

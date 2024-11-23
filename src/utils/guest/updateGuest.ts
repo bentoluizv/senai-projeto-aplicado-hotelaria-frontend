@@ -1,4 +1,4 @@
-import { type UpdateGuestDTO } from "../schemas/schemas";
+import { type UpdateGuestDTO } from "../../schemas/schemas";
 
 export const updateGuest = async (token: Token, updateData: UpdateGuestDTO) => {
   const response = await fetch(
