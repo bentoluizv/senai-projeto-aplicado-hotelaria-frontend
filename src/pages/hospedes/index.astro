@@ -1,0 +1,43 @@
+---
+import { actions } from "astro:actions";
+import Table from "../../components/Table.astro";
+import Layout from "../../layouts/Layout.astro";
+import { type Guest } from "../../schemas/schemas";
+
+const result = await Astro.callAction(actions.getAllGuestsAction, undefined);
+
+const { data, error } = result;
+if (error) {
+  throw new Error("Not possible to list all guests");
+}
+
+const tableData = data.map((guest: Guest) => {
+  return {
+    document: guest.document,
+    name: `${guest.name} ${guest.surname}`,
+    country: guest.country,
+    phone: guest.phone,
+    ulid: guest.ulid,
+  };
+});
+
+let columns = ["Documento", "Nome", "País", "Telefone"];
+---
+
+<Layout>
+  <main class="grow flex flex-col items-center justify-between bg-amber-50">
+    {
+      tableData.length > 0 ? (
+        <Table id="guest-table" columns={columns} data={tableData} />
+      ) : (
+        <p class="mt-20">Nenhum hóspede encontrado</p>
+      )
+    }
+
+    <a
+      href="/hospedes/cadastro"
+      class="mb-20 w-64 text-zinc-800 bg-green-500 hover:bg-green-700 font-bold py-2 px-4 rounded block text-center transition duration-200">
+      Cadastrar
+    </a>
+  </main>
+</Layout>

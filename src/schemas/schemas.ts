@@ -13,6 +13,8 @@ export const guestSchema = z.object({
     .transform((phone) => formatPhoneNumber(phone)),
 });
 
+export type Guest = z.infer<typeof guestSchema>;
+
 export const creationalGuestSchema = z.object({
   document: z
     .string()
@@ -32,6 +34,8 @@ export const creationalGuestSchema = z.object({
         .replaceAll(")", "")
     ),
 });
+
+export type CreationalGuestDTO = z.infer<typeof creationalGuestSchema>;
 
 export const accommodationSchema = z.object({
   ulid: z.string().ulid(),

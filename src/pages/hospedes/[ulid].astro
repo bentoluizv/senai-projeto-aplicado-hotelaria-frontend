@@ -1,0 +1,97 @@
+---
+import type { ZodType } from "astro:schema";
+import {
+  type ULID,
+  findGuestByIDAction,
+} from "../../actions/findGuestByIDAction";
+import Form from "../../components/Form.astro";
+import SelectCountryInput from "../../components/SelectCountryInput.astro";
+import TextInput from "../../components/TextInput.astro";
+import Layout from "../../layouts/Layout.astro";
+import type { Guest } from "../../schemas/schemas";
+
+const { ulid } = Astro.params;
+
+if (!ulid) {
+  throw new Error("Oops, something went wrong");
+}
+
+const result = await Astro.callAction<
+  "json",
+  ZodType<ULID>,
+  Guest,
+  typeof findGuestByIDAction
+>(findGuestByIDAction, { ulid });
+
+if (result.error) {
+  console.log(result.error);
+  throw new Error("Not possible to fetch guest info!");
+}
+
+const guest = result.data;
+
+if (Astro.request.method == "POST") {
+}
+---
+
+<Layout>
+  <main class="grow flex flex-col items-center">
+    <Form id="update-guest-form">
+      <div slot="inputs" class="flex flex-col w-full max-w-lg mx-auto">
+        <TextInput disabled id="ulid" label="ID" value={guest.ulid} />
+        <TextInput id="document" label="Documento" value={guest.document} />
+        <TextInput id="name" label="Nome" value={guest.name} />
+        <TextInput id="surname" label="Sobrenome" value={guest.surname} />
+        <SelectCountryInput selected={guest.country} />
+        <TextInput id="phone" label="Telefone" value={guest.phone} />
+      </div>
+      <div slot="buttons" class="w-full p-4 flex flex-col gap-8">
+        <div class="flex gap-5">
+          <button
+            id="update_button"
+            class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-56"
+            type="submit">
+            Atualizar
+          </button>
+          <button
+            id="delete_button"
+            class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-56"
+            type="button">
+            Excluir
+          </button>
+        </div>
+
+        <a
+          href="/hospedes"
+          id="back_btn"
+          type="button"
+          class="bg-zinc-600 hover:bg-zinc-400 text-white hover:text-zinc-800 font-bold py-2 text-center rounded-md mb-2 w-full">
+          Voltar
+        </a>
+      </div>
+    </Form>
+  </main>
+</Layout>
+
+<script>
+  import { actions } from "astro:actions";
+  import { navigate } from "astro:transitions/client";
+
+  const deleteBtnElement = document.getElementById(
+    "delete_button"
+  ) as HTMLButtonElement;
+
+  deleteBtnElement.addEventListener("click", async (event) => {
+    const urlSegments = document.location.pathname.split("/");
+    const ulid = urlSegments[urlSegments.length - 1];
+
+    const result = await actions.deleteGuestAction({ ulid });
+
+    if (result.error) {
+      console.log(result.error);
+      throw new Error("Not possible to delete guest");
+    }
+
+    return navigate("/hospedes");
+  });
+</script>

@@ -1,58 +1,43 @@
 ---
+import { actions } from "astro:actions";
 import Form from "../../components/Form.astro";
 import SelectCountryInput from "../../components/SelectCountryInput.astro";
 import TextInput from "../../components/TextInput.astro";
 import Layout from "../../layouts/Layout.astro";
+
+if (Astro.request.method == "POST") {
+  const formData = await Astro.request.formData();
+  const { data, error } = await Astro.callAction(
+    actions.createNewGuestAction,
+    formData
+  );
+
+  if (data && data.message == "CREATED") {
+    return Astro.redirect("/hospedes");
+  }
+}
 ---
 
 <Layout>
-  <Form id="new-guest-form">
-    <div slot="inputs" class="flex flex-col max-w-lg mx-auto">
-      <TextInput id="document" label="Documento" />
-      <TextInput id="name" label="Nome" />
-      <TextInput id="surname" label="Sobrenome" />
-      <SelectCountryInput />
-      <TextInput id="phone" label="Telefone" />
-    </div>
-    <div slot="buttons" class="flex flex-col w-full items-center p-16">
-      <button
-        id="submit_button"
-        class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-56"
-        type="submit">Cadastrar</button
-      >
-    </div>
-  </Form>
+  <main class="grow flex flex-col items-center">
+    <Form id="new-guest-form">
+      <div slot="inputs" class="flex flex-col p-4">
+        <TextInput id="document" label="Documento" />
+        <TextInput id="name" label="Nome" />
+        <TextInput id="surname" label="Sobrenome" />
+        <SelectCountryInput />
+        <TextInput id="phone" label="Telefone" />
+      </div>
+      <div
+        slot="buttons"
+        class="flex flex-col items-center md:flex-row md:justify-center p-4 gap-4">
+        <button
+          id="submit_button"
+          class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full"
+          type="submit">
+          Cadastrar
+        </button>
+      </div>
+    </Form>
+  </main>
 </Layout>
-
-<script>
-  import { creationalGuestSchema } from "../../schemas/schemas";
-  import { getFormData } from "../../utils/getFormData";
-
-  const form = document.getElementById("new-guest-form") as HTMLFormElement;
-
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
-
-    const formData = getFormData(form);
-    const parse = await creationalGuestSchema.safeParseAsync(formData);
-
-    if (!parse.success) {
-      console.log(parse.error.errors);
-    } else {
-      const response = await fetch(`http://backend:8050/guests`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(parse.data),
-      });
-
-      if (response.status === 201) {
-        window.location.href = "/hospedes";
-      } else {
-        const data = await response.json();
-        console.log(response.status, data);
-      }
-    }
-  });
-</script>

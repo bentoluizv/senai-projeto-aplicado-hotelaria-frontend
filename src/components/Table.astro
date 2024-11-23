@@ -14,41 +14,62 @@ if (data.length > 0) {
 }
 ---
 
-<table class="w-full p-4 table-auto border-collapse mt-14 mb-24" id={id}>
-  <thead class="bg-zinc-500 text-amber-50 font-bold h-12 text-center">
-    {
-      columns.map((col) => {
-        return col == "uuid" ? (
-          <td hidden class="p-4">
-            {col}
-          </td>
-        ) : (
-          <td class="p-4">{col}</td>
-        );
-      })
-    }
-  </thead>
-  <tbody id="table_content">
-    {
-      data.map((content) => {
-        return (
-          <tr class="text-center text-zinc-600 hover:bg-orange-200 cursor-pointer">
-            {keys.map((key) => {
-              return key == "ulid" ? (
-                <td
-                  hidden
-                  class="border-b border-l text-center p-4 border-zinc-300 last:border-r">
+<div class="mt-14 mb-24 p-4">
+  <table
+    class="w-full max-w-full border-collapse rounded-lg shadow-lg table-fixed">
+    <thead class="bg-zinc-800 text-amber-50 font-semibold uppercase text-sm">
+      <tr>
+        {
+          columns.map((col) =>
+            col === "ulid" ? (
+              <th class="hidden p-4">{col}</th>
+            ) : (
+              <th class="p-4 text-left border-b border-zinc-700">{col}</th>
+            )
+          )
+        }
+      </tr>
+    </thead>
+    <tbody id="table_content" class="bg-white">
+      {
+        data.map((content, rowIndex) => (
+          <tr class="hover:bg-orange-100 text-zinc-700 border-b last:border-b-0 transition duration-200 cursor-pointer">
+            {keys.map((key) =>
+              key === "ulid" ? (
+                <td class="ulid_hidden_col hidden p-4 text-sm text-zinc-500 border-zinc-300">
                   {content[key]}
                 </td>
               ) : (
-                <td class="border-b border-l text-center p-4 border-zinc-300 last:border-r">
+                <td class="p-4 text-sm text-left border-zinc-300 truncate whitespace-nowrap">
                   {content[key]}
                 </td>
-              );
-            })}
+              )
+            )}
           </tr>
-        );
-      })
-    }
-  </tbody>
-</table>
+        ))
+      }
+    </tbody>
+  </table>
+</div>
+
+<script>
+  import { navigate } from "astro:transitions/client";
+
+  const tableBody = document.getElementById("table_content");
+
+  if (tableBody) {
+    tableBody.addEventListener("click", (event) => {
+      const target = event.target as HTMLElement;
+      const row = target.closest("tr");
+
+      if (row) {
+        const ulidCell = row.querySelector(".ulid_hidden_col");
+        const ulidValue = ulidCell ? ulidCell.textContent : null;
+
+        if (ulidValue) {
+          return navigate(`/hospedes/${ulidValue.trim()}`);
+        }
+      }
+    });
+  }
+</script>

@@ -1,9 +1,9 @@
 ---
-import SmallForm from "../components/SmallForm.astro";
-import Table from "../components/Table.astro";
-import TextInput from "../components/TextInput.astro";
-import Layout from "../layouts/Layout.astro";
-import { bookingSchema } from "../schemas/schemas";
+import SmallForm from "../../components/SmallForm.astro";
+import Table from "../../components/Table.astro";
+import TextInput from "../../components/TextInput.astro";
+import Layout from "../../layouts/Layout.astro";
+import { bookingSchema } from "../../schemas/schemas";
 
 const response = await fetch(`http://backend:8050/bookings`);
 

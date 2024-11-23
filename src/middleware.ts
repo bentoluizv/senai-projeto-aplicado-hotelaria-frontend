@@ -25,6 +25,7 @@ const checkTokenMiddleware = defineMiddleware(async (context, next) => {
     const { data, error } = await callAction(actions.refreshTokenAction, token);
 
     if (error) {
+      console.log(error);
       return redirect("/login");
     }
   }
