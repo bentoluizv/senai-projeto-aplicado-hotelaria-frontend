@@ -1,4 +1,5 @@
 import type { AstroCookies } from "astro";
+import { userSchema } from "../schemas/schemas";
 
 type User = {
   ulid: string;
@@ -21,7 +22,14 @@ export const getCurrentUser = async (cookies: AstroCookies) => {
     },
   });
 
-  const currentUser = await response.json();
+  const data = await response.json();
+  const safeResult = await userSchema.safeParseAsync(data);
+  if (!safeResult.success) {
+    console.log(safeResult.error);
+    return safeResult.error;
+  }
 
-  return currentUser as User;
+  const currentUser = safeResult.data;
+
+  return currentUser;
 };

@@ -94,3 +94,11 @@ export const creationalBookingSchema = z.object({
   guest_document: z.string(),
   accommodation_ulid: z.string(),
 });
+
+export const userSchema = z.object({
+  ulid: z.string().ulid(),
+  email: z.string().email(),
+  role: z.enum(["admin", "role"]),
+});
+
+export type User = z.infer<typeof userSchema>;
