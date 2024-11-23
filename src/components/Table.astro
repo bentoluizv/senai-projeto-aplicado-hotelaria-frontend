@@ -32,7 +32,7 @@ if (data.length > 0) {
     </thead>
     <tbody id="table_content" class="bg-white">
       {
-        data.map((content, rowIndex) => (
+        data.map((content) => (
           <tr class="hover:bg-orange-100 text-zinc-700 border-b last:border-b-0 transition duration-200 cursor-pointer">
             {keys.map((key) =>
               key === "ulid" ? (
@@ -51,25 +51,3 @@ if (data.length > 0) {
     </tbody>
   </table>
 </div>
-
-<script>
-  import { navigate } from "astro:transitions/client";
-
-  const tableBody = document.getElementById("table_content");
-
-  if (tableBody) {
-    tableBody.addEventListener("click", (event) => {
-      const target = event.target as HTMLElement;
-      const row = target.closest("tr");
-
-      if (row) {
-        const ulidCell = row.querySelector(".ulid_hidden_col");
-        const ulidValue = ulidCell ? ulidCell.textContent : null;
-
-        if (ulidValue) {
-          return navigate(`/hospedes/${ulidValue.trim()}`);
-        }
-      }
-    });
-  }
-</script>
