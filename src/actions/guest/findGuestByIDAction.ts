@@ -14,7 +14,15 @@ const findGuestByIDAction = defineAction({
     const { ulid } = input;
     const { cookies } = ctx;
 
-    const guest = await findGuestByID(cookies, ulid);
+    const tokenCookie = cookies.get("token");
+
+    if (!tokenCookie) {
+      throw new Error("Token cookie not found");
+    }
+
+    const token = tokenCookie.json() as Token;
+
+    const guest = await findGuestByID(token, ulid);
 
     return guest;
   },

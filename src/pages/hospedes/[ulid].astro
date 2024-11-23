@@ -12,20 +12,18 @@ import type { Guest } from "../../schemas/schemas";
 
 const { ulid } = Astro.params;
 
-if (!ulid) {
-  throw new Error("Oops, something went wrong");
-}
+const input = { ulid: ulid as string };
 
 const result = await Astro.callAction<
   "json",
   ZodType<ULID>,
   Guest,
   typeof findGuestByIDAction
->(findGuestByIDAction, { ulid });
+>(findGuestByIDAction, input);
 
 if (result.error) {
   console.log(result.error);
-  throw new Error("Not possible to fetch guest info!");
+  return Astro.redirect("/hospedes");
 }
 
 const guest = result.data;

@@ -1,9 +1,6 @@
-import type { AstroCookies } from "astro";
 import { guestSchema } from "../schemas/schemas";
 
-export const findGuestByID = async (cookies: AstroCookies, ulid: string) => {
-  const token = cookies.get("token")?.json() as Token;
-
+export const findGuestByID = async (token: Token, ulid: string) => {
   const response = await fetch(`http://backend:8050/guests/${ulid}`, {
     method: "GET",
     headers: {
