@@ -2,8 +2,8 @@
 /// <reference types="astro/client" />
 
 interface User {
-  id: string;
-  username: string;
+  ulid: string;
+  email: string;
   role?: "user" | "admin";
 }
 
