@@ -27,7 +27,7 @@ export const updateAccommodationSchema = z.object({
   single_beds: z.coerce.number().min(0).optional(),
   double_beds: z.coerce.number().min(0).optional(),
   price: z.coerce.number().min(0).optional(),
-  amenities: z.array(amenittieSchema).optional(),
+  amenities: z.array(z.string()).optional(),
 });
 
 export const creationalAccommodationSchema = z.object({
