@@ -2,7 +2,7 @@ import { defineAction } from "astro:actions";
 import { creationalGuestSchema } from "../../schemas/guest";
 import { createNewGuest } from "../../utils/guest/createNewGuest";
 
-const createNewGuestAction = defineAction({
+export const createNewGuestAction = defineAction({
   accept: "form",
   input: creationalGuestSchema,
   handler: async (input, ctx) => {
@@ -11,5 +11,3 @@ const createNewGuestAction = defineAction({
     return data;
   },
 });
-
-export { createNewGuestAction };
