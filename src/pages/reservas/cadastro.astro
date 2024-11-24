@@ -14,7 +14,7 @@ const accommodations = await accommodationSchema
   .parseAsync(data["accommodations"]);
 
 const avaliableAccommodationsName = accommodations
-  .filter((accommodation) => accommodation.status == "avaiable")
+  .filter((accommodation) => accommodation.status == "disponível")
   .map(({ name }) => name);
 
 const today = new Date().toISOString().split("T")[0];
