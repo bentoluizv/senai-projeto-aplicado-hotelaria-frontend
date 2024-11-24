@@ -1,4 +1,4 @@
-import { accommodationSchema } from "../../schemas/guest";
+import { accommodationSchema } from "../../schemas/accommodation";
 
 export const getAllAccommodations = async (token: Token) => {
   const response = await fetch("http://backend:8050/accommodations", {

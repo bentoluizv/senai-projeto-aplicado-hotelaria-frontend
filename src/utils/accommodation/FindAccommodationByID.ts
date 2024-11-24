@@ -21,7 +21,7 @@ export const findAccommodationByUlid = async (token: Token, ulid: string) => {
 
   const data = await response.json();
 
-  const guest = await accommodationSchema.parseAsync(data);
+  const accommodation = await accommodationSchema.parseAsync(data);
 
-  return guest;
+  return accommodation;
 };
