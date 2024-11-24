@@ -5,3 +5,22 @@ export const ulidSchema = z.object({
 });
 
 export type ULID = z.infer<typeof ulidSchema>;
+
+const pagination = z.object({
+  page: z.number(),
+  perPage: z.number(),
+});
+
+const filter = z
+  .object({
+    start: z.string().date(),
+    end: z.string().date(),
+  })
+  .optional();
+
+export const bookingListSettingsSchema = z.object({
+  pagination,
+  filter,
+});
+
+export type BookingListSettings = z.infer<typeof bookingListSettingsSchema>;
