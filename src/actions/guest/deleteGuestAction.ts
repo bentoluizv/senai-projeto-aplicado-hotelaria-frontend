@@ -1,12 +1,6 @@
 import { defineAction } from "astro:actions";
-import { z } from "astro:schema";
+import { ulidSchema } from "../../schemas/shared";
 import { deleteGuest } from "../../utils/guest/deleteGuest";
-
-const ulidSchema = z.object({
-  ulid: z.string().ulid(),
-});
-
-export type ULID = z.infer<typeof ulidSchema>;
 
 export const deleteGuestAction = defineAction({
   input: ulidSchema,
