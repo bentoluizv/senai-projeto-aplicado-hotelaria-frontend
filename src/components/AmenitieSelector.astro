@@ -1,0 +1,49 @@
+---
+import { listAllAmenitiesAction } from "../actions/amenities/listAllAmenitiesAction";
+import type { Accommodation } from "../schemas/accommodation";
+import CheckboxInput from "./CheckboxInput.astro";
+
+type Props = {
+  accommodation?: Accommodation;
+};
+
+const { callAction, props } = Astro;
+const { data, error } = await callAction(listAllAmenitiesAction, undefined);
+
+if (error) {
+  console.log(error);
+  throw new Error("Unable to fetch amenities");
+}
+
+const amenities = data;
+
+const { accommodation } = props;
+---
+
+<div class="p-4 grid grid-cols-2 w-full gap-3">
+  {
+    amenities.length == 0 ? (
+      <p class="text-center">Nenhuma amenidade cadastrada</p>
+    ) : (
+      amenities.map((amenitie) => {
+        const haveAmenitie = accommodation?.amenities.find(
+          (_amenitie) => amenitie.name == _amenitie.name
+        );
+
+        return haveAmenitie ? (
+          <CheckboxInput
+            id={amenitie.id}
+            label={amenitie.name}
+            checked={true}
+          />
+        ) : (
+          <CheckboxInput
+            id={amenitie.id}
+            label={amenitie.name}
+            checked={false}
+          />
+        );
+      })
+    )
+  }
+</div>
