@@ -1,9 +1,12 @@
 import { z } from "astro:content";
 
 const statusEnum = z.enum(["avaiable", "ocupied"]);
-type status = "avaiable" | "ocupied";
 
-type statusPtBr = "disponível" | "ocupado";
+const statusEnumPtBr = z.enum(["disponível", "ocupado"]);
+
+type status = z.infer<typeof statusEnum>;
+
+type statusPtBr = z.infer<typeof statusEnumPtBr>;
 
 const translateMatrix: [status, statusPtBr][] = [
   ["avaiable", "disponível"],
@@ -23,7 +26,7 @@ export const accommodationSchema = z.object({
   ulid: z.string().ulid(),
   name: z.coerce.string().trim(),
   status: statusEnum.transform((value) =>
-    translateStatus(value, translateMatrix)
+    translateStatus("pt-br", value, translateMatrix)
   ),
   total_guests: z.coerce.number().min(1),
   single_beds: z.coerce.number().min(0),
@@ -40,7 +43,9 @@ export const updateAccommodationSchema = z.object({
   double_beds: z.coerce.number().min(0).optional(),
   price: z.coerce.number().min(0).optional(),
   amenities: z.array(z.string()).optional(),
-  status: statusEnum,
+  status: statusEnumPtBr.transform((value) =>
+    translateStatus("en", value, translateMatrix)
+  ),
 });
 
 export const creationalAccommodationSchema = z.object({
@@ -62,14 +67,32 @@ export type CreateAccommodationDTO = z.infer<
 >;
 
 function translateStatus(
-  value: status,
+  to: "pt-br" | "en",
+  value: status | statusPtBr,
   translateMatrix: [status, statusPtBr][]
-): statusPtBr {
-  const translation = translateMatrix.find(([status]) => status === value);
+): status | statusPtBr {
+  switch (to) {
+    case "pt-br": {
+      const translation = translateMatrix.find(([status]) => status === value);
 
-  if (!translation) {
-    throw new Error(`Status ${value} does not match in translate matrix`);
+      if (!translation) {
+        throw new Error(`Translation for ${value} not found in pt-br`);
+      }
+      return translation[1];
+    }
+    case "en": {
+      const translation = translateMatrix.find(
+        ([, statusPtBr]) => statusPtBr === value
+      );
+
+      if (!translation) {
+        throw new Error(`Translation for ${value} not found in en`);
+      }
+
+      return translation[0];
+    }
+    default: {
+      throw new Error("Invalid language code");
+    }
   }
-
-  return translation[1];
 }
