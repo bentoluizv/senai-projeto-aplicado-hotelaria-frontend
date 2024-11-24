@@ -5,24 +5,14 @@ import Form from "../../components/Form.astro";
 import NumberInput from "../../components/NumberInput.astro";
 import TextInput from "../../components/TextInput.astro";
 import Layout from "../../layouts/Layout.astro";
-import type { CreateAccommodationDTO } from "../../schemas/accommodation";
+import { getAccommodationFormData } from "../../utils/getFormData";
 
 const { request, callAction, redirect } = Astro;
 
 if (request.method == "POST") {
   const formData = await request.formData();
-  const obj: any = {};
-  const amenities: string[] = [];
 
-  formData.forEach((value, key) => {
-    if (value == "on") {
-      amenities.push(key);
-    } else {
-      obj[key] = value;
-    }
-  });
-
-  const accommodationData: CreateAccommodationDTO = { ...obj, amenities };
+  const accommodationData = getAccommodationFormData(formData);
 
   const { data, error } = await callAction(
     createNewAccommodationAction,

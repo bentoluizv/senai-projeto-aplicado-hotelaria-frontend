@@ -87,6 +87,7 @@ const accommodation = result.data;
   <script>
     import { actions } from "astro:actions";
     import { navigate } from "astro:transitions/client";
+    import { getAccommodationFormData } from "../../utils/getFormData";
 
     handleDelete();
     handleUpdate();
@@ -120,13 +121,11 @@ const accommodation = result.data;
         event.preventDefault();
 
         const formData = new FormData(formElement);
-        const obj: any = {};
 
-        formData.forEach((valor, chave) => {
-          obj[chave] = valor;
-        });
-
-        const result = await actions.updateAccommodationAction(formData);
+        const accommodationData = getAccommodationFormData(formData);
+        console.log(accommodationData);
+        const result =
+          await actions.updateAccommodationAction(accommodationData);
 
         if (result.error) {
           console.log(result.error);
