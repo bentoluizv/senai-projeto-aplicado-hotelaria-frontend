@@ -36,22 +36,6 @@ export const updateGuestSchema = z.object({
     .transform((phone) => (phone ? transformPhone(phone) : undefined)),
 });
 
-export const accommodationSchema = z.object({
-  ulid: z.string().ulid(),
-  name: z.coerce.string().trim(),
-  status: z.coerce.string().trim(),
-  total_guests: z.coerce.number().min(1),
-  single_beds: z.coerce.number().min(0),
-  double_beds: z.coerce.number().min(0),
-  price: z.coerce.number().min(0),
-  amenities: z.array(
-    z.object({
-      id: z.coerce.string().trim(),
-      name: z.coerce.string().trim(),
-    })
-  ),
-});
-
 export type Guest = z.infer<typeof guestSchema>;
 
 export type CreationalGuestDTO = z.infer<typeof creationalGuestSchema>;
