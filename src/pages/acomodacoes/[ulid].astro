@@ -6,20 +6,10 @@ import TextInput from "../../components/TextInput.astro";
 import Layout from "../../layouts/Layout.astro";
 import { findAccommodationByIDAction } from "../../actions/accommodation/findAccommodationByULIDAction";
 import type { Accommodation } from "../../schemas/accommodation";
-import CheckboxInput from "../../components/CheckboxInput.astro";
-import { listAllAmenitiesAction } from "../../actions/amenities/listAllAmenitiesAction";
 import NumberInput from "../../components/NumberInput.astro";
+import AmenitieSelector from "../../components/AmenitieSelector.astro";
 
 const { params, callAction, redirect } = Astro;
-
-const { data, error } = await callAction(listAllAmenitiesAction, undefined);
-
-if (error) {
-  console.log(error);
-  throw new Error("Unable to fetch amenities");
-}
-
-const amenities = data;
 
 const { ulid } = params;
 
@@ -67,98 +57,84 @@ const accommodation = result.data;
           <NumberInput id="price" label="Preço" value={accommodation.price} />
         </div>
 
-        <div class="p-4 mt-6 w-full">
-          {
-            amenities.length == 0 ? (
-              <p class="text-center">Nenhuma amenidade cadastrada</p>
-            ) : (
-              amenities.map((amenitie) => (
-                <CheckboxInput
-                  id={String(amenitie.id)}
-                  label={amenitie.name}
-                  checked={accommodation.amenities.includes(amenitie)}
-                />
-              ))
-            )
-          }
-        </div>
-      </div>
+        <AmenitieSelector accommodation={accommodation} />
 
-      <div slot="buttons" class="w-full p-4 flex flex-col gap-8">
-        <div slot="buttons" class="flex gap-5">
-          <button
-            id="update_button"
-            class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-56"
-            type="submit">Atualizar</button
-          >
-          <button
-            id="delete_button"
-            class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-56"
-            type="button">Excluir</button
-          >
+        <div slot="buttons" class="w-full p-4 flex flex-col gap-8">
+          <div slot="buttons" class="flex gap-5">
+            <button
+              id="update_button"
+              class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-56"
+              type="submit">Atualizar</button
+            >
+            <button
+              id="delete_button"
+              class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-56"
+              type="button">Excluir</button
+            >
+          </div>
+          <a
+            href="/acomodacoes"
+            id="back_btn"
+            type="button"
+            class="bg-zinc-600 hover:bg-zinc-400 text-white hover:text-zinc-800 font-bold py-2 text-center rounded-md mb-2 w-full">
+            Voltar
+          </a>
         </div>
-        <a
-          href="/acomodacoes"
-          id="back_btn"
-          type="button"
-          class="bg-zinc-600 hover:bg-zinc-400 text-white hover:text-zinc-800 font-bold py-2 text-center rounded-md mb-2 w-full">
-          Voltar
-        </a>
       </div>
     </Form>
   </main>
-</Layout>
 
-<script>
-  import { actions } from "astro:actions";
-  import { navigate } from "astro:transitions/client";
+  <script>
+    import { actions } from "astro:actions";
+    import { navigate } from "astro:transitions/client";
 
-  handleDelete();
-  handleUpdate();
+    handleDelete();
+    handleUpdate();
 
-  function handleDelete() {
-    const deleteBtnElement = document.getElementById(
-      "delete_button"
-    ) as HTMLButtonElement;
+    function handleDelete() {
+      const deleteBtnElement = document.getElementById(
+        "delete_button"
+      ) as HTMLButtonElement;
 
-    deleteBtnElement.addEventListener("click", async (event) => {
-      const urlSegments = document.location.pathname.split("/");
-      const ulid = urlSegments[urlSegments.length - 1];
+      deleteBtnElement.addEventListener("click", async (event) => {
+        const urlSegments = document.location.pathname.split("/");
+        const ulid = urlSegments[urlSegments.length - 1];
 
-      const result = await actions.deleteAccommodationAction({ ulid });
+        const result = await actions.deleteAccommodationAction({ ulid });
 
-      if (result.error) {
-        console.log(result.error);
-        throw new Error("Not possible to delete accommodation");
-      }
+        if (result.error) {
+          console.log(result.error);
+          throw new Error("Not possible to delete accommodation");
+        }
 
-      return navigate("/acomodacoes");
-    });
-  }
-
-  function handleUpdate() {
-    const formElement = document.getElementById(
-      "update-accommodation-form"
-    ) as HTMLFormElement;
-
-    formElement.addEventListener("submit", async (event) => {
-      event.preventDefault();
-
-      const formData = new FormData(formElement);
-      const obj: any = {};
-
-      formData.forEach((valor, chave) => {
-        obj[chave] = valor;
+        return navigate("/acomodacoes");
       });
+    }
 
-      const result = await actions.updateAccommodationAction(formData);
+    function handleUpdate() {
+      const formElement = document.getElementById(
+        "update-accommodation-form"
+      ) as HTMLFormElement;
 
-      if (result.error) {
-        console.log(result.error);
-        throw new Error("Not possible to update accommodation");
-      }
+      formElement.addEventListener("submit", async (event) => {
+        event.preventDefault();
 
-      return navigate("/acomodacoes");
-    });
-  }
-</script>
+        const formData = new FormData(formElement);
+        const obj: any = {};
+
+        formData.forEach((valor, chave) => {
+          obj[chave] = valor;
+        });
+
+        const result = await actions.updateAccommodationAction(formData);
+
+        if (result.error) {
+          console.log(result.error);
+          throw new Error("Not possible to update accommodation");
+        }
+
+        return navigate("/acomodacoes");
+      });
+    }
+  </script>
+</Layout>
