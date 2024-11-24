@@ -10,8 +10,8 @@ export const updateAccommodationAction = defineAction({
     const { cookies } = ctx;
 
     const token = await getToken(cookies);
-    const accommodation = await updateAccommodation(token, updateData);
+    const ok = await updateAccommodation(token, updateData);
 
-    return accommodation;
+    return ok;
   },
 });
