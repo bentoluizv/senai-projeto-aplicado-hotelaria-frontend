@@ -1,6 +1,5 @@
 ---
 import type { ZodType } from "astro:schema";
-import { type ULID } from "../../actions/guest/findGuestByIDAction";
 import Form from "../../components/Form.astro";
 import TextInput from "../../components/TextInput.astro";
 import Layout from "../../layouts/Layout.astro";
@@ -8,6 +7,8 @@ import { findAccommodationByIDAction } from "../../actions/accommodation/findAcc
 import type { Accommodation } from "../../schemas/accommodation";
 import NumberInput from "../../components/NumberInput.astro";
 import AmenitieSelector from "../../components/AmenitieSelector.astro";
+import type { ULID } from "../../schemas/shared";
+import SelectInput from "../../components/SelectInput.astro";
 
 const { params, callAction, redirect } = Astro;
 
@@ -36,8 +37,12 @@ const accommodation = result.data;
       <div slot="inputs" class="flex flex-col w-full max-w-lg mx-auto">
         <TextInput hidden id="ulid" label="Id" value={accommodation.ulid} />
         <TextInput id="name" label="Nome" value={accommodation.name} />
-        <TextInput id="status" label="Status" value={accommodation.status} />
-
+        <SelectInput
+          id="status"
+          label="Status"
+          selected={accommodation.status}
+          options={["disponível", "ocupado"]}
+        />
         <div class="grid grid-cols-2">
           <NumberInput
             id="total_guests"
@@ -126,7 +131,6 @@ const accommodation = result.data;
         console.log(accommodationData);
         const result =
           await actions.updateAccommodationAction(accommodationData);
-
         if (result.error) {
           console.log(result.error);
           throw new Error("Not possible to update accommodation");

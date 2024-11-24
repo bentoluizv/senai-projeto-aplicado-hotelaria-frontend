@@ -1,14 +1,12 @@
 ---
 import type { ZodType } from "astro:schema";
-import {
-  type ULID,
-  findGuestByIDAction,
-} from "../../actions/guest/findGuestByIDAction";
+import { findGuestByIDAction } from "../../actions/guest/findGuestByIDAction";
 import Form from "../../components/Form.astro";
 import SelectCountryInput from "../../components/SelectCountryInput.astro";
 import TextInput from "../../components/TextInput.astro";
 import Layout from "../../layouts/Layout.astro";
 import { type Guest } from "../../schemas/guest";
+import type { ULID } from "../../schemas/shared";
 
 const { ulid } = Astro.params;
 
