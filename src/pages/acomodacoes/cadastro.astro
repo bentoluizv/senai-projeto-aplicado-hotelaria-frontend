@@ -1,30 +1,32 @@
 ---
-import { undefined } from "astro:schema";
 import { createNewAccommodationAction } from "../../actions/accommodation/createNewAccommodationAction";
-import { listAllAmenitiesAction } from "../../actions/amenities/listAllAmenitiesAction";
-import CheckboxInput from "../../components/CheckboxInput.astro";
+import AmenitieSelector from "../../components/AmenitieSelector.astro";
 import Form from "../../components/Form.astro";
 import NumberInput from "../../components/NumberInput.astro";
 import TextInput from "../../components/TextInput.astro";
 import Layout from "../../layouts/Layout.astro";
+import type { CreateAccommodationDTO } from "../../schemas/accommodation";
 
 const { request, callAction, redirect } = Astro;
 
-const { data, error } = await callAction(listAllAmenitiesAction, undefined);
-
-if (error) {
-  console.log(error);
-  throw new Error("Unable to fetch amenities");
-}
-
-const amenities = data;
-
 if (request.method == "POST") {
   const formData = await request.formData();
+  const obj: any = {};
+  const amenities: string[] = [];
+
+  formData.forEach((value, key) => {
+    if (value == "on") {
+      amenities.push(key);
+    } else {
+      obj[key] = value;
+    }
+  });
+
+  const accommodationData: CreateAccommodationDTO = { ...obj, amenities };
 
   const { data, error } = await callAction(
     createNewAccommodationAction,
-    formData
+    accommodationData
   );
 
   if (error) {
@@ -38,37 +40,26 @@ if (request.method == "POST") {
 ---
 
 <Layout>
-  <main class="grow w-full flex flex-col items-center justify-start">
+  <main class="grow w-full flex flex-col items-center justify-between">
     <Form id="new-accommodation-form">
-      <div slot="inputs" class="flex flex-col items-start justify-center">
+      <div
+        slot="inputs"
+        class="flex flex-col items-start justify-center text-sm gap-2">
         <TextInput id="name" label="Nome" />
         <NumberInput id="total_guests" label="Max. Hospedes" />
         <NumberInput id="single_beds" label="Cama Solteiro" />
         <NumberInput id="double_beds" label="Cama Casal" />
         <NumberInput id="price" label="Preço" />
 
-        <div class="p-4 mt-6 w-full">
-          {
-            amenities.length == 0 ? (
-              <p class="text-center">Nenhuma amenidade cadastrada</p>
-            ) : (
-              amenities.map((amenitie) => (
-                <CheckboxInput
-                  id={`amenitie_${amenitie.id}`}
-                  label={amenitie.name}
-                />
-              ))
-            )
-          }
-        </div>
+        <AmenitieSelector />
       </div>
-
       <div slot="buttons" class="flex flex-col w-full">
         <button
           id="submit_button"
           class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-          type="submit">Cadastrar</button
-        >
+          type="submit">
+          Cadastrar
+        </button>
       </div>
     </Form>
   </main>
