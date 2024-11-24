@@ -12,6 +12,16 @@ const statusEnum = z.enum([
   "canceled",
 ]);
 
+const statusEnumPtBr = z.enum([
+  "pré-reserva",
+  "reservado",
+  "aguardando check-in",
+  "ativa",
+  "aguardando check-out",
+  "finalizada",
+  "cancelada",
+]);
+
 type status =
   | "pre-booked"
   | "booked"
@@ -60,8 +70,6 @@ export const bookingSchema = z.object({
   budget: z.coerce.number().min(0),
 });
 
-export type Booking = z.infer<typeof bookingSchema>;
-
 export const creationalBookingSchema = z.object({
   check_in: z.string().transform((date) => new Date(date).toISOString()),
   check_out: z.string().transform((date) => new Date(date).toISOString()),
@@ -73,3 +81,11 @@ export const updateBookingSchema = z.object({
   ulid: z.string().ulid(),
   status: statusEnum,
 });
+export const listAllBookingsInputSchema = z.object({
+  ulid: z.string().ulid(),
+  status: statusEnumPtBr.transform((value) => undefined),
+});
+
+export type Booking = z.infer<typeof bookingSchema>;
+export type CreateBookingDTO = z.infer<typeof creationalBookingSchema>;
+export type UpdateBookingDTO = z.infer<typeof updateBookingSchema>;
