@@ -10,6 +10,10 @@ import { listAllAmenitiesAction } from "./amenities/listAllAmenitiesAction";
 import { getCurrentUserAction } from "./auth/getCurrentUserAction";
 import { loginAction } from "./auth/loginAction";
 import { refreshTokenAction } from "./auth/refreshTokenAction";
+import { changeBookingStatusAction } from "./booking/changeBookingStatusAction";
+import { createNewBookingAction } from "./booking/createNewBookingAction";
+import { findBookingByIDAction } from "./booking/FindBookingByIDAction";
+import { listAllBookingsAction } from "./booking/listAllBookingsAction";
 import { createNewGuestAction } from "./guest/createNewGuestAction";
 import { deleteGuestAction } from "./guest/deleteGuestAction";
 import { findGuestByIDAction } from "./guest/findGuestByIDAction";
@@ -34,4 +38,8 @@ export const server = {
   deleteAmenitieAction,
   listAllAmenitiesAction,
   findAmenitieByIdAction,
+  changeBookingStatusAction,
+  createNewBookingAction,
+  findBookingByIDAction,
+  listAllBookingsAction,
 };

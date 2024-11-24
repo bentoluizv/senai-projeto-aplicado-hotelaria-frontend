@@ -1,11 +1,10 @@
 import { defineAction } from "astro:actions";
-import { ulidSchema } from "../../schemas/shared";
+import { z } from "astro:schema";
 import { findGuestByID } from "../../utils/guest/FindGuestByID";
 
 export const findGuestByIDAction = defineAction({
-  input: ulidSchema,
+  input: z.string(),
   handler: async (input, ctx) => {
-    const { ulid } = input;
     const { cookies } = ctx;
 
     const tokenCookie = cookies.get("token");
@@ -16,7 +15,7 @@ export const findGuestByIDAction = defineAction({
 
     const token = tokenCookie.json() as Token;
 
-    const guest = await findGuestByID(token, ulid);
+    const guest = await findGuestByID(token, input);
 
     return guest;
   },
