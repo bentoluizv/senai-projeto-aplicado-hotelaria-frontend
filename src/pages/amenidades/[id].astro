@@ -1,0 +1,87 @@
+---
+import type { ZodType } from "astro:schema";
+import Form from "../../components/Form.astro";
+import TextInput from "../../components/TextInput.astro";
+import Layout from "../../layouts/Layout.astro";
+import type { Amenitie } from "../../schemas/accommodation";
+import {
+  findAmenitieByIdAction,
+  type ID,
+} from "../../actions/amenities/findAmenitieByIDAction";
+
+const { params, callAction, redirect } = Astro;
+
+const { id } = params;
+
+const input = { id: id as string };
+
+const result = await callAction<
+  "json",
+  ZodType<ID>,
+  Amenitie,
+  typeof findAmenitieByIdAction
+>(findAmenitieByIdAction, input);
+
+if (result.error) {
+  console.log(result.error);
+  return redirect("/amenidades");
+}
+
+const amenitie = result.data;
+---
+
+<Layout>
+  <main class="grow flex flex-col items-center">
+    <Form id="update-accommodation-form">
+      <div slot="inputs" class="flex flex-col w-full max-w-lg mx-auto">
+        <TextInput id="id" label="Id" value={amenitie.id} />
+        <TextInput id="name" label="Nome" value={amenitie.name} />
+      </div>
+
+      <div slot="buttons" class="w-full p-4 flex flex-col gap-8">
+        <div slot="buttons" class="flex flex-col gap-5">
+          <button
+            id="delete_button"
+            class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+            type="submit">Deletar</button
+          >
+          <a
+            href="/acomodacoes"
+            id="back_btn"
+            type="button"
+            class="bg-zinc-600 hover:bg-zinc-400 text-white hover:text-zinc-800 font-bold py-2 text-center rounded-md mb-2 w-full">
+            Voltar
+          </a>
+        </div>
+      </div>
+    </Form>
+  </main>
+</Layout>
+
+<script>
+  import { actions } from "astro:actions";
+
+  handleDelete();
+
+  function handleDelete() {
+    const deleteBtnElement = document.getElementById(
+      "delete_button"
+    ) as HTMLButtonElement;
+
+    deleteBtnElement.addEventListener("click", async (event) => {
+      const urlSegments = document.location.pathname.split("/");
+      const id = urlSegments[urlSegments.length - 1];
+
+      const result = await actions.deleteAmenitieAction({ id });
+
+      if (result.error) {
+        console.log(result.error);
+        throw new Error("Not possible to delete amenitie");
+      }
+
+      console.log(result.data);
+
+      //   return navigate("/amenidades");
+    });
+  }
+</script>

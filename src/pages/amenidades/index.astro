@@ -1,0 +1,68 @@
+---
+import { actions } from "astro:actions";
+import Table from "../../components/Table.astro";
+import Layout from "../../layouts/Layout.astro";
+import type { Amenitie } from "../../schemas/accommodation";
+
+const result = await Astro.callAction(
+  actions.listAllAmenitiesAction,
+  undefined
+);
+
+const { data, error } = result;
+
+if (error) {
+  console.log(error);
+  return Astro.redirect("/");
+}
+
+const tableData = data.map((amenitie: Amenitie) => {
+  return {
+    id: amenitie.id,
+    name: amenitie.name,
+  };
+});
+
+let columns = ["ID", "Nome"];
+---
+
+<Layout>
+  <main class="grow flex flex-col items-center justify-between bg-amber-50">
+    {
+      tableData.length > 0 ? (
+        <Table id="amenitie-table" columns={columns} data={tableData} />
+      ) : (
+        <p class="mt-20">Nenhuma amenidade encontrada</p>
+      )
+    }
+    <div class="flex flex-col gap-6">
+      <a
+        href="/amenidades/cadastro"
+        class="w-64 text-zinc-800 bg-green-500 hover:bg-green-700 font-bold py-2 px-4 rounded block text-center transition duration-200">
+        Cadastrar
+      </a>
+      <a
+        href="/acomodacoes/"
+        class="w-64 text-white bg-zinc-500 hover:bg-zinc-700 font-bold py-2 px-4 rounded block text-center transition duration-200">
+        Voltar
+      </a>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  import { navigate } from "astro:transitions/client";
+
+  const tableBody = document.getElementById("table_content");
+
+  if (tableBody) {
+    tableBody.addEventListener("click", (event) => {
+      const target = event.target as HTMLElement;
+      const id = target.closest("tr")?.cells[0].textContent;
+
+      if (id) {
+        return navigate(`/amenidades/${id.trim()}`);
+      }
+    });
+  }
+</script>
