@@ -84,7 +84,7 @@
     const navLinks = document.querySelectorAll(".nav_link");
 
     navLinks.forEach((link) => {
-      if (link.getAttribute("href") === currentPath) {
+      if (currentPath.startsWith(link.getAttribute("href") as string)) {
         link.classList.add("text-amber-400", "font-black");
       }
     });
