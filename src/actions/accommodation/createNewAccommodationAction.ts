@@ -4,7 +4,6 @@ import { createNewAccommodation } from "../../utils/accommodation/createNewAccom
 import { getToken } from "../../utils/auth/getToken";
 
 export const createNewAccommodationAction = defineAction({
-  accept: "form",
   input: creationalAccommodationSchema,
   handler: async (input, ctx) => {
     const { cookies } = ctx;
