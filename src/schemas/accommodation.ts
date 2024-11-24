@@ -5,7 +5,7 @@ export const amenittieSchema = z.object({
   name: z.coerce.string().trim(),
 });
 
-export const createAmenitieDTO = z.object({
+export const createAmenitieSchema = z.object({
   name: z.coerce.string().trim(),
 });
 
@@ -36,13 +36,13 @@ export const creationalAccommodationSchema = z.object({
   single_beds: z.coerce.number().min(0),
   double_beds: z.coerce.number().min(0),
   price: z.coerce.number().min(0),
-  amenities: z.array(amenittieSchema),
+  amenities: z.array(z.string()),
 });
 
 export type Accommodation = z.infer<typeof accommodationSchema>;
 export type Amenitie = z.infer<typeof amenittieSchema>;
 export type UpdateAccommodationDTO = z.infer<typeof updateAccommodationSchema>;
-export type CreateAmenitieDTO = z.infer<typeof createAmenitieDTO>;
+export type CreateAmenitieDTO = z.infer<typeof createAmenitieSchema>;
 export type CreateAccommodationDTO = z.infer<
   typeof creationalAccommodationSchema
 >;
