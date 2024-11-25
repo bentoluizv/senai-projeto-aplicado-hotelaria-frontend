@@ -1,0 +1,14 @@
+---
+import SelectInput from "../SelectInput.astro";
+import TextInput from "../TextInput.astro";
+
+const today = new Date().toISOString().split("T")[0];
+---
+
+<div>
+  <SelectInput id="accommodation_ulid" label="Acomodações" options={[]} />
+  <TextInput disabled id="total_guests" label="Max. Hóspedes" />
+  <TextInput disabled id="single_beds" label="Cama Solteiro" />
+  <TextInput disabled id="double_beds" label="Cama Casal" />
+  <TextInput disabled id="price" label="Preço" />
+</div>

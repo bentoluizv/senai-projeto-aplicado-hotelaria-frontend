@@ -1,0 +1,50 @@
+---
+import TextInput from "../TextInput.astro";
+---
+
+<div id="step_1" class="">
+  <div class="flex">
+    <TextInput id="guest_document" label="Documento" />
+    <button class="text-amber-50 h-0 w-0 self-end">+</button>
+  </div>
+  <TextInput disabled id="guest_name" label="Nome" />
+  <TextInput disabled id="guest_phone" label="Telefone" />
+  <TextInput disabled id="guest_country" label="País" />
+  <hr class="p-4 mt-10" />
+</div>
+
+<script>
+  import { actions } from "astro:actions";
+  import type { Guest } from "../../schemas/guest";
+
+  const documentInput = document.getElementById(
+    "guest_document"
+  ) as HTMLInputElement;
+
+  documentInput.addEventListener("focusout", async () => {
+    const doc = documentInput.value;
+
+    const result = await actions.findGuestByIDAction(doc);
+
+    if (result.error) {
+      console.log(result.error);
+      throw new Error("Unable do fetch guest data");
+    }
+
+    const data = result.data as Guest;
+
+    const inputGuestName = document.getElementById(
+      "guest_name"
+    ) as HTMLInputElement;
+    const inputGuestPhone = document.getElementById(
+      "guest_phone"
+    ) as HTMLInputElement;
+    const inputGuestCountry = document.getElementById(
+      "guest_country"
+    ) as HTMLInputElement;
+
+    inputGuestName.value = `${data.name} ${data.surname}`;
+    inputGuestPhone.value = data.phone;
+    inputGuestCountry.value = data.country;
+  });
+</script>

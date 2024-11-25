@@ -1,0 +1,22 @@
+---
+import DateInput from "../DateInput.astro";
+
+const today = new Date().toISOString().split("T")[0];
+---
+
+<div>
+  <DateInput required id="check_in" label="Check In" min={today} />
+  <DateInput required id="check_out" label="Check Out" />
+</div>
+
+<script>
+  const checkinInput = document.getElementById("check_in") as HTMLInputElement;
+  const checkOutInput = document.getElementById(
+    "check_out"
+  ) as HTMLInputElement;
+
+  checkinInput.addEventListener("change", () => {
+    const value = checkinInput.value;
+    checkOutInput.min = value;
+  });
+</script>
