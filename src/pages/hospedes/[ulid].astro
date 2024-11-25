@@ -6,15 +6,14 @@ import SelectCountryInput from "../../components/SelectCountryInput.astro";
 import TextInput from "../../components/TextInput.astro";
 import Layout from "../../layouts/Layout.astro";
 import { type Guest } from "../../schemas/guest";
-import type { ULID } from "../../schemas/shared";
 
 const { ulid } = Astro.params;
 
-const input = { ulid: ulid as string };
+const input = ulid as string;
 
 const result = await Astro.callAction<
   "json",
-  ZodType<ULID>,
+  ZodType<string>,
   Guest,
   typeof findGuestByIDAction
 >(findGuestByIDAction, input);
@@ -100,10 +99,6 @@ const guest = result.data;
 
     formElement.addEventListener("submit", async (event) => {
       event.preventDefault();
-      const countrySelect = document.getElementById(
-        "country"
-      ) as HTMLSelectElement;
-      const selectedCountry = countrySelect.value;
 
       const formData = new FormData(formElement);
       const obj: any = {};
