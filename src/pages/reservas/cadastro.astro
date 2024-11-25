@@ -1,221 +1,37 @@
 ---
-import DateInput from "../../components/DateInput.astro";
-import SelectInput from "../../components/SelectInput.astro";
-import SmallForm from "../../components/SmallForm.astro";
-import TextInput from "../../components/TextInput.astro";
+import Form from "../../components/Form.astro";
+import DatePickerWidget from "../../components/widgets/DatePickerWidget.astro";
 import Layout from "../../layouts/Layout.astro";
-import { accommodationSchema } from "../../schemas/accommodation";
 
-const response = await fetch(`http://backend:8050/accommodations`);
-const data = await response.json();
+const { request, redirect } = Astro;
 
-const accommodations = await accommodationSchema
-  .array()
-  .parseAsync(data["accommodations"]);
+if (request.method == "POST") {
+  const formData = await request.formData();
 
-const avaliableAccommodationsName = accommodations
-  .filter((accommodation) => accommodation.status == "disponível")
-  .map(({ name }) => name);
+  console.log(formData);
 
-const today = new Date().toISOString().split("T")[0];
+  const checkin = formData.get("check_in") as string;
+  const checkout = formData.get("check_out") as string;
+
+  return redirect(`/reservas/${checkin}&${checkout}`);
+}
 ---
 
 <Layout>
-  <SmallForm id="new-booking-form">
-    <div slot="inputs" class="flex flex-col items-center grow">
-      <div class="px-4 py-12 w-full border-b border-gray-300 grid grid-cols-8">
-        <div class="col-span-2">
-          <TextInput id="document" label="Documento" />
-        </div>
-        <div class="col-span-3">
-          <TextInput disabled id="guest_name" label="Nome" />
-        </div>
-        <div class="col-span-3">
-          <TextInput disabled id="guest_phone" label="Telefone" />
-        </div>
+  <main class="grow flex flex-col items-center">
+    <Form id="new-booking-form">
+      <div slot="inputs" class="flex flex-col p-4">
+        <DatePickerWidget />
       </div>
 
-      <div class="px-4 py-12 flex gap-36 border-b border-gray-300">
-        <div class="w-full grid">
-          <SelectInput
-            id="select_accommodation"
-            label="Acomodações"
-            options={avaliableAccommodationsName}
-          />
-        </div>
-        <div class="w-full grid grid-cols-2 grid-rows-3">
-          <TextInput disabled id="total_guests" label="Max. Hóspedes" />
-          <TextInput disabled id="min_nights" label="Min. Noites" />
-          <TextInput disabled id="single_beds" label="Cama Solteiro" />
-          <TextInput disabled id="double_beds" label="Cama Casal" />
-          <TextInput disabled id="price" label="Preço" />
-        </div>
-      </div>
-
-      <div
-        class="px-4 py-12 w-full grid grid-cols-2 gap-36 border-b border-gray-300">
-        <DateInput required id="check_in" label="Check In" min={today} />
-        <DateInput required id="check_out" label="Check Out" />
-      </div>
-    </div>
-    <div
-      slot="buttons"
-      class="px-4 py-12 w-full flex flex-col items-end border-b border-gray-300">
-      <div class="flex gap-6">
-        <TextInput disabled id="budget" label="Total" />
+      <div slot="buttons" id="step_4">
         <button
           id="make_booking_btn"
           type="submit"
-          class="bg-green-600 hover:bg-green-400 text-white hover:text-zinc-800 font-bold px-24 py-2 rounded-md mb-2 w-full h-12 self-end">
-          Fazer Reserva
+          class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded w-full">
+          Buscar Acomodações
         </button>
       </div>
-    </div>
-  </SmallForm>
+    </Form>
+  </main>
 </Layout>
-
-<script>
-  import { creationalBookingSchema } from "../../schemas/booking";
-  import { getFormData } from "../../utils/getFormData";
-
-  const response = await fetch(`http://backend:8050/accommodations/`);
-  const { accommodations } = await response.json();
-
-  const inputGuestDocument = document.getElementById(
-    "document"
-  ) as HTMLButtonElement;
-
-  inputGuestDocument.addEventListener("change", async (event) => {
-    const doc = inputGuestDocument.value
-      .trim()
-      .replaceAll(".", "")
-      .replace("-", "");
-
-    const response = await fetch(`http://backend:8050/guests/${doc}`);
-
-    if (response.status == 200) {
-      const data = await response.json();
-
-      const inputGuestName = document.getElementById(
-        "guest_name"
-      ) as HTMLInputElement;
-      const inputGuestPhone = document.getElementById(
-        "guest_phone"
-      ) as HTMLInputElement;
-
-      inputGuestName.value = `${data.name} ${data.surname}`;
-      inputGuestPhone.value = data.phone;
-    } else {
-      const data = await response.json();
-      console.log(data);
-    }
-  });
-
-  const selectAccommodationElement = document.getElementById(
-    "select_accommodation"
-  ) as HTMLSelectElement;
-  selectAccommodationElement.addEventListener("change", async (event) => {
-    const name = selectAccommodationElement.value;
-    const { ulid } = accommodations.find(
-      (element: any) => element.name == name
-    );
-    const response = await fetch(`http://backend:8050/accommodations/${ulid}`);
-
-    const data = await response.json();
-    for (const [key, value] of Object.entries(data)) {
-      const element = document.getElementById(key);
-      if (element instanceof HTMLInputElement) {
-        element.value = value as string;
-      }
-    }
-    const priceInput = document.getElementById("price") as HTMLInputElement;
-    const rawPrice = priceInput.value;
-    const formatedPrice = Intl.NumberFormat("pt-BR", {
-      currency: "BRL",
-      style: "currency",
-    }).format(Number(rawPrice));
-    priceInput.value = formatedPrice;
-
-    (document.getElementById("budget") as HTMLInputElement).value = "";
-  });
-
-  const checkInSelect = document.getElementById("check_in") as HTMLInputElement;
-  const checkOutSelect = document.getElementById(
-    "check_out"
-  ) as HTMLInputElement;
-
-  checkInSelect.addEventListener("change", () => {
-    const checkIn = new Date(checkInSelect.value);
-    const minCheckOut = new Date(checkIn.setDate(checkIn.getDate() + 2))
-      .toISOString()
-      .split("T")[0];
-
-    checkOutSelect.setAttribute("min", minCheckOut);
-  });
-
-  checkOutSelect.addEventListener("change", () => {
-    const budgetInput = document.getElementById("budget") as HTMLInputElement;
-    const price = (document.getElementById("price") as HTMLInputElement).value;
-
-    const checkIn = checkInSelect.valueAsDate;
-    const checkOut = checkOutSelect.valueAsDate;
-
-    if (checkIn && checkOut) {
-      if (selectAccommodationElement.selectedIndex == 0) {
-        console.log("Please select a accommodation");
-      }
-      const diff = checkOut.getTime() - checkIn.getTime();
-      const diffInDays = diff / (1000 * 60 * 60 * 24);
-      const total =
-        Number(price.replaceAll("R$", "").replace(",", ".").trim()) *
-        diffInDays;
-
-      const budget = Intl.NumberFormat("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      }).format(total);
-
-      budgetInput.value = budget;
-    }
-  });
-
-  const newBookingForm = document.getElementById(
-    "new-booking-form"
-  ) as HTMLFormElement;
-
-  newBookingForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const formData = getFormData(newBookingForm);
-    const budget = (document.getElementById("budget") as HTMLInputElement).value
-      .replace("R$", "")
-      .replaceAll(".", "")
-      .replace(",", ".")
-      .trim();
-
-    const name = selectAccommodationElement.value;
-    const { ulid } = accommodations.find(
-      (element: any) => element.name == name
-    );
-
-    const data = {
-      check_in: formData["check_in"],
-      check_out: formData["check_out"],
-      guest_document: formData["document"],
-      accommodation_ulid: ulid,
-      budget,
-    };
-    const parsedData = creationalBookingSchema.parse(data);
-
-    const response = await fetch(`http://backend:8050/bookings`, {
-      body: JSON.stringify(parsedData),
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-    });
-
-    if (response.status === 201) {
-      window.location.href = "/reservas";
-    } else {
-      const data = await response.json();
-    }
-  });
-</script>
