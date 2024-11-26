@@ -1,14 +1,76 @@
 ---
-import SelectInput from "../SelectInput.astro";
-import TextInput from "../TextInput.astro";
+import { getAllAccommodationsAction } from "../../actions/accommodation/getAllAcommodationsAction";
+import AccommodationCard from "../AccommodationCard.astro";
 
-const today = new Date().toISOString().split("T")[0];
+type Props = {
+  accommodations_ulid: string[];
+};
+const { callAction, props } = Astro;
+const { accommodations_ulid } = props;
+
+const result = await callAction(getAllAccommodationsAction, undefined);
+
+if (result.error) {
+  console.log(result.error);
+  throw new Error("Unable to fetch accommodations data");
+}
+
+const accommodations = result.data;
+
+const avaiableAccommodations = accommodations.filter(
+  (accommodation) => !accommodations_ulid.includes(accommodation.ulid)
+);
 ---
 
-<div>
-  <SelectInput id="accommodation_ulid" label="Acomodações" options={[]} />
-  <TextInput disabled id="total_guests" label="Max. Hóspedes" />
-  <TextInput disabled id="single_beds" label="Cama Solteiro" />
-  <TextInput disabled id="double_beds" label="Cama Casal" />
-  <TextInput disabled id="price" label="Preço" />
+<div class="flex flex-col w-full h-full">
+  {
+    avaiableAccommodations.map((accommodation) => (
+      <AccommodationCard accommodation={accommodation} />
+    ))
+  }
 </div>
+
+<script>
+  import { navigate } from "astro:transitions/client";
+
+  const path = document.location.pathname;
+  const splitedPath = path.split("/");
+  const period = splitedPath[splitedPath.length - 1];
+  const cards = document.querySelectorAll(".accommodation_card");
+
+  cards.forEach((card) => {
+    card.addEventListener("focus", () => {
+      card.lastElementChild?.classList.remove("hidden");
+      card.lastElementChild?.classList.add("flex");
+    });
+
+    card.addEventListener("focusout", (event) => {
+      const relatedTarget = (event as FocusEvent).relatedTarget;
+
+      if (relatedTarget && card.contains(relatedTarget as Node)) {
+        return;
+      }
+      card.lastElementChild?.classList.add("hidden");
+    });
+  });
+
+  const btns = document.querySelectorAll(".circular-btn");
+
+  btns.forEach((btn) => {
+    btn.addEventListener("mousedown", (event) => {
+      event.preventDefault();
+    });
+
+    btn.addEventListener("click", (event) => {
+      const card = btn.closest(".accommodation_card");
+
+      const confirmed = confirm("Você deseja selecionar essa acomodação?");
+
+      if (confirmed) {
+        return navigate(`/reservas/cadastro/${period}/${card?.id}`);
+      } else {
+        (card as HTMLElement).blur();
+      }
+    });
+  });
+</script>
