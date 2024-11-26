@@ -12,10 +12,6 @@ interface Token {
   token_type: string;
 }
 
-interface TokenWithExp extends Token {
-  exp: number;
-}
-
 declare namespace App {
   interface Locals {
     user?: User;
