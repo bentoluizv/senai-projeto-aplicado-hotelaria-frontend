@@ -8,9 +8,8 @@ export const listAllBookings = async (
   const { filter, pagination } = settings;
 
   const url = filter
-    ? `http://backend:8050/bookings?check_in=${filter.start}&checkout=${filter.end}&{pagination.page}&per_page=${pagination.perPage}`
+    ? `http://backend:8050/bookings?check_in=${filter.start}&check_out=${filter.end}&page=${pagination.page}&per_page=${pagination.perPage}`
     : `http://backend:8050/bookings?page=${pagination.page}&per_page=${pagination.perPage}`;
-
   const response = await fetch(url, {
     method: "GET",
     headers: {
