@@ -55,9 +55,7 @@ export const bookingSchema = z.object({
   ulid: z.string().ulid(),
   locator: z.coerce.string(),
   status: statusEnum.transform((value) =>
-    translateMatrix.map((status) =>
-      status[0] == value ? status[1] : status[1]
-    )
+    translateStatus("pt-br", value, translateMatrix)
   ),
   check_in: z
     .string()
@@ -79,13 +77,48 @@ export const creationalBookingSchema = z.object({
 
 export const updateBookingSchema = z.object({
   ulid: z.string().ulid(),
-  status: statusEnum,
+  status: statusEnum.transform((value) =>
+    translateStatus("en", value, translateMatrix)
+  ),
 });
 export const listAllBookingsInputSchema = z.object({
   ulid: z.string().ulid(),
-  status: statusEnumPtBr.transform((value) => undefined),
+  status: statusEnum.transform((value) =>
+    translateStatus("en", value, translateMatrix)
+  ),
 });
 
 export type Booking = z.infer<typeof bookingSchema>;
 export type CreateBookingDTO = z.infer<typeof creationalBookingSchema>;
 export type UpdateBookingDTO = z.infer<typeof updateBookingSchema>;
+
+function translateStatus(
+  to: "pt-br" | "en",
+  value: status | statusPtBr,
+  translateMatrix: [status, statusPtBr][]
+): status | statusPtBr {
+  switch (to) {
+    case "pt-br": {
+      const translation = translateMatrix.find(([status]) => status === value);
+
+      if (!translation) {
+        throw new Error(`Translation for ${value} not found in pt-br`);
+      }
+      return translation[1];
+    }
+    case "en": {
+      const translation = translateMatrix.find(
+        ([, statusPtBr]) => statusPtBr === value
+      );
+
+      if (!translation) {
+        throw new Error(`Translation for ${value} not found in en`);
+      }
+
+      return translation[0];
+    }
+    default: {
+      throw new Error("Invalid language code");
+    }
+  }
+}
