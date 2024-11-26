@@ -1,0 +1,38 @@
+---
+import Form from "../../../components/Form.astro";
+import DatePickerWidget from "../../../components/widgets/DatePickerWidget.astro";
+import GuestWidget from "../../../components/widgets/GuestWidget.astro";
+import Layout from "../../../layouts/Layout.astro";
+
+const { request, redirect, locals } = Astro;
+
+if (request.method == "POST") {
+  const formData = await request.formData();
+
+  const checkin = formData.get("check_in") as string;
+  const checkout = formData.get("check_out") as string;
+  const guestDocument = formData.get("guest_document") as string;
+
+  return redirect(`/reservas/cadastro/${guestDocument}&${checkin}&${checkout}`);
+}
+---
+
+<Layout>
+  <main class="grow flex flex-col items-center">
+    <Form id="new-booking-form">
+      <div slot="inputs" class="flex flex-col p-4">
+        <GuestWidget />
+        <DatePickerWidget />
+      </div>
+
+      <div slot="buttons" id="step_4">
+        <button
+          id="make_booking_btn"
+          type="submit"
+          class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded w-full">
+          Buscar Acomodações
+        </button>
+      </div>
+    </Form>
+  </main>
+</Layout>
