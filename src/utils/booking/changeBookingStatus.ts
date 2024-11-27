@@ -1,29 +1,27 @@
-import type { UpdateBookingDTO } from "../../schemas/booking";
-
 export const changeBookingStatus = async (
   token: Token,
-  updateData: UpdateBookingDTO
+  ulid: string,
+  status: string
 ) => {
-  const response = await fetch(
-    `http://backend:8050/bookings/${updateData.ulid}`,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `${token.token_type} ${token.access_token}`,
-        body: JSON.stringify({ status: updateData.status }),
-      },
-    }
-  );
+  const url = `http://backend:8050/bookings/${ulid}`;
+
+  const response = await fetch(url, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `${token.token_type} ${token.access_token}`,
+    },
+    body: JSON.stringify({ status }),
+  });
 
   if (response.status == 401) {
     throw new Error(`Auth failed`);
   }
 
   if (response.status != 200) {
-    throw new Error(
-      `Something went wrong with your request!! Response status: ${response.status}`
-    );
+    const data = await response.json();
+    console.log(data.detail);
+    throw new Error("Unable to create a new booking");
   }
 
   const data = await response.json();
