@@ -1,0 +1,103 @@
+---
+import { listAllBookingsAction } from "../../../../actions/booking/listAllBookingsAction";
+import AccommodationWidget from "../../../../components/widgets/AccommodationWidget.astro";
+import Layout from "../../../../layouts/Layout.astro";
+import type { Booking } from "../../../../schemas/booking";
+
+const { checkin, checkout } = Astro.params;
+
+const result = await Astro.callAction(listAllBookingsAction, {
+  pagination: { page: 1, perPage: 50 },
+  filter: {
+    start: checkin as string,
+    end: checkout as string,
+  },
+});
+
+if (result.error) {
+  console.log(result.error);
+  throw new Error("Unable do fetch bookings");
+}
+const bookings = result.data as Booking[];
+
+const bookedAccommodations = bookings.map(
+  (booking) => booking.accommodation.ulid
+);
+---
+
+<Layout>
+  <main class="grow flex flex-col items-center">
+    <AccommodationWidget accommodations_ulid={bookedAccommodations} />
+  </main>
+</Layout>
+
+<script>
+  import { actions } from "astro:actions";
+  import { navigate } from "astro:transitions/client";
+
+  const path = document.location.pathname;
+  const splitedPath = path.split("/");
+  const period = splitedPath[splitedPath.length - 1];
+  const [guest_document, check_in, check_out] = period.split("&");
+
+  const cards = document.querySelectorAll(".accommodation_card");
+
+  cards.forEach((card) => {
+    card.addEventListener("focus", () => {
+      card.lastElementChild?.classList.remove("hidden");
+      card.lastElementChild?.classList.add("flex");
+    });
+
+    card.addEventListener("focusout", (event) => {
+      const relatedTarget = (event as FocusEvent).relatedTarget;
+
+      if (relatedTarget && card.contains(relatedTarget as Node)) {
+        return;
+      }
+      card.lastElementChild?.classList.add("hidden");
+    });
+  });
+
+  const btns = document.querySelectorAll(".circular-btn");
+
+  btns.forEach((btn) => {
+    btn.addEventListener("mousedown", (event) => {
+      event.preventDefault();
+    });
+
+    btn.addEventListener("click", async (event) => {
+      const card = btn.closest(".accommodation_card");
+
+      if (!card) {
+        throw new Error("No card selected");
+      }
+
+      const confirmed = confirm("Você deseja selecionar essa acomodação?");
+
+      if (!confirmed) {
+        (card as HTMLElement).blur();
+        return;
+      }
+
+      const accommodation_ulid = card.id;
+
+      const input = {
+        guest_document,
+        accommodation_ulid,
+        check_in,
+        check_out,
+      };
+
+      const bookingResult = await actions.createNewBookingAction(input);
+
+      if (bookingResult.error) {
+        console.log(bookingResult.error);
+        throw new Error("Unable to create a new booking");
+      }
+
+      const booking = bookingResult.data;
+
+      return navigate(`/checkout/${booking.ulid}`);
+    });
+  });
+</script>
