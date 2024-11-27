@@ -1,0 +1,126 @@
+---
+import type { ZodType } from "astro:schema";
+import { findAccommodationByIDAction } from "../../actions/accommodation/findAccommodationByULIDAction";
+import { changeBookingStatusAction } from "../../actions/booking/changeBookingStatusAction";
+import { findBookingByIDAction } from "../../actions/booking/FindBookingByIDAction";
+import TimerWidget from "../../components/widgets/TimerWidget.astro";
+import Layout from "../../layouts/Layout.astro";
+import type { Accommodation } from "../../schemas/accommodation";
+import type { Booking } from "../../schemas/booking";
+import type { ULID } from "../../schemas/shared";
+
+const { params, redirect, callAction, request } = Astro;
+const { booking_ulid } = params;
+
+const bookingResult = await callAction<
+  "json",
+  ZodType<ULID>,
+  Booking,
+  typeof findBookingByIDAction
+>(findBookingByIDAction, { ulid: booking_ulid as string });
+
+if (bookingResult.error) {
+  console.log(bookingResult.error);
+  throw new Error("Unable to fetch bookings");
+}
+
+const booking = bookingResult.data;
+
+const accommodationResult = await callAction<
+  "json",
+  ZodType<ULID>,
+  Accommodation,
+  typeof findAccommodationByIDAction
+>(findAccommodationByIDAction, { ulid: booking.accommodation.ulid as string });
+
+if (accommodationResult.error) {
+  console.log(accommodationResult.error);
+  throw new Error("Unable to fetch accommodations");
+}
+
+const accommodation = accommodationResult.data;
+
+const { name, price, total_guests, single_beds, double_beds } = accommodation;
+
+const totalFmt = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+}).format(booking.budget);
+
+const checkIn = new Date(booking.check_in);
+const checkOut = new Date(booking.check_out);
+
+if (request.method == "POST") {
+  const bookingResult = await callAction(changeBookingStatusAction, {
+    ulid: booking.ulid,
+    status: "reservado",
+  });
+
+  if (bookingResult.error) {
+    console.log(bookingResult.error);
+    throw new Error("Unable to create a new booking");
+  }
+
+  return redirect("/reservas");
+}
+---
+
+<Layout>
+  <main class="grow flex justify-center items-center p-6">
+    <form
+      method="POST"
+      class="checkout-card w-full max-w-md bg-white shadow-lg rounded-lg border border-gray-200 p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold text-gray-800">Resumo do Checkout</h2>
+        <TimerWidget />
+      </div>
+
+      <div class="mb-4">
+        <p class="text-lg font-semibold text-gray-700">{name}</p>
+        <p class="text-sm text-gray-600">Acomodação</p>
+      </div>
+
+      <div class="mb-4">
+        <p class="text-lg font-semibold text-gray-700">R$ {price.toFixed(2)}</p>
+        <p class="text-sm text-gray-600">Preço por noite</p>
+      </div>
+
+      <div class="mb-4">
+        <p class="text-lg font-semibold text-gray-700">{totalFmt}</p>
+        <p class="text-sm text-gray-600">total</p>
+      </div>
+
+      <div class="mb-4">
+        <p class="text-gray-700">
+          <span class="font-semibold">Check-in:</span>
+          {checkIn.toLocaleDateString("pt-BR")}
+          <p class="text-gray-700">
+            <span class="font-semibold">Check-out:</span>
+            {checkOut.toLocaleDateString("pt-BR")}
+          </p>
+        </p>
+
+        <div class="mb-4">
+          <p class="text-gray-700">
+            <span class="font-semibold">Total de Hóspedes:</span>
+            {total_guests}
+          </p>
+          <p class="text-gray-700">
+            <span class="font-semibold">Camas de Solteiro:</span>
+            {single_beds}
+          </p>
+          <p class="text-gray-700">
+            <span class="font-semibold">Camas de Casal:</span>
+            {double_beds}
+          </p>
+        </div>
+
+        <button
+          type="submit"
+          class="w-full bg-amber-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-amber-600 active:scale-95 transition-transform">
+          Confirmar Reserva
+        </button>
+      </div>
+    </form>
+  </main>
+</Layout>
