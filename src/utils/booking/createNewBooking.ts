@@ -1,4 +1,4 @@
-import type { CreateBookingDTO } from "../../schemas/booking";
+import { bookingSchema, type CreateBookingDTO } from "../../schemas/booking";
 
 export const createNewBooking = async (
   token: Token,
@@ -18,11 +18,14 @@ export const createNewBooking = async (
   }
 
   if (response.status != 201) {
-    throw new Error(
-      `Something went wrong with your request!! Response status: ${response.status}`
-    );
+    const data = await response.json();
+    console.log(data.detail);
+    throw new Error("Unable to create a new booking");
   }
 
-  const data: { message: string } = await response.json();
-  return data;
+  const data = await response.json();
+
+  const booking = await bookingSchema.parseAsync(data);
+
+  return booking;
 };
