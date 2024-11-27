@@ -1,0 +1,25 @@
+<div id="contador" class="text-sm text-red-500 font-bold">15:00</div>
+<p id="status" class="mt-4 text-gray-500"></p>
+
+<script>
+  function formatTime(seconds: number) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${String(minutes).padStart(2, "0")}:${String(remainingSeconds).padStart(2, "0")}`;
+  }
+
+  let timeRemaining = 15 * 60;
+
+  const contadorElement = document.getElementById("contador") as HTMLElement;
+  const statusElement = document.getElementById("status") as HTMLElement;
+
+  const countdown = setInterval(() => {
+    contadorElement.innerText = formatTime(timeRemaining);
+    timeRemaining--;
+
+    if (timeRemaining <= 0) {
+      clearInterval(countdown);
+      statusElement.innerText = "Tempo esgotado!";
+    }
+  }, 1000);
+</script>
