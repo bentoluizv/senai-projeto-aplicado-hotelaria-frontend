@@ -1,5 +1,112 @@
 ---
-const { ulid } = Astro.params;
+import type { ZodType } from "astro:schema";
+import { findBookingByIDAction } from "../../actions/booking/FindBookingByIDAction";
+import Form from "../../components/Form.astro";
+import TextInput from "../../components/TextInput.astro";
+import Layout from "../../layouts/Layout.astro";
+import type { Booking } from "../../schemas/booking";
+import type { ULID } from "../../schemas/shared";
+
+const { params, callAction, redirect } = Astro;
+
+const { ulid } = params;
+
+const input = { ulid: ulid as string };
+
+const result = await callAction<
+  "json",
+  ZodType<ULID>,
+  Booking,
+  typeof findBookingByIDAction
+>(findBookingByIDAction, input);
+
+if (result.error) {
+  console.log(result.error);
+  throw new Error("Unable to fetch booking");
+}
+
+const booking = result.data;
+
+const fmtBudget = Intl.NumberFormat("pt-BR", {
+  currency: "BRL",
+  style: "currency",
+}).format(booking.budget);
+
+const checkIn = new Date(booking.check_in);
+const checkOut = new Date(booking.check_out);
 ---
 
-<h1>{ulid}</h1>
+<Layout>
+  <main class="grow flex flex-col items-center">
+    <Form id="update-accommodation-form">
+      <div slot="inputs" class="flex flex-col w-full max-w-lg mx-auto">
+        <TextInput hidden id="ulid" label="ulid" value={booking.ulid} />
+        <TextInput
+          disabled
+          id="locator"
+          label="Localizador"
+          value={booking.locator}
+        />
+        <TextInput disabled id="status" label="Status" value={booking.status} />
+        <TextInput
+          disabled
+          id="budget"
+          label="Valor"
+          value={String(fmtBudget)}
+        />
+        <TextInput
+          disabled
+          id="accommodation"
+          label="Acomodação"
+          value={booking.accommodation.name}
+        />
+        <TextInput
+          disabled
+          id="guest_document"
+          label="Documento"
+          value={booking.guest.document}
+        />
+        <TextInput
+          disabled
+          id="guest_name"
+          label="Nome"
+          value={booking.guest.name}
+        />
+        <TextInput
+          disabled
+          id="check_in"
+          label="Check In"
+          value={checkIn.toLocaleDateString()}
+        />
+        <TextInput
+          disabled
+          id="check_out"
+          label="Check Out"
+          value={checkOut.toLocaleDateString()}
+        />
+      </div>
+
+      <div slot="buttons" class="w-full p-4 flex flex-col gap-8">
+        <div slot="buttons" class="flex gap-5">
+          <button
+            id="update_button"
+            class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-56"
+            type="submit">Fazer Check-In</button
+          >
+          <button
+            id="delete_button"
+            class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-56"
+            type="button">Cancelar</button
+          >
+        </div>
+        <a
+          href="/acomodacoes"
+          id="back_btn"
+          type="button"
+          class="bg-zinc-600 hover:bg-zinc-400 text-white hover:text-zinc-800 font-bold py-2 text-center rounded-md mb-2 w-full">
+          Voltar
+        </a>
+      </div>
+    </Form>
+  </main>
+</Layout>
