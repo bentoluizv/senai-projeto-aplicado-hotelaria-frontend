@@ -1,18 +1,5 @@
 import { z } from "astro:content";
 
-const statusEnum = z.enum(["avaiable", "ocupied"]);
-
-const statusEnumPtBr = z.enum(["disponível", "ocupado"]);
-
-type status = z.infer<typeof statusEnum>;
-
-type statusPtBr = z.infer<typeof statusEnumPtBr>;
-
-const translateMatrix: [status, statusPtBr][] = [
-  ["avaiable", "disponível"],
-  ["ocupied", "ocupado"],
-];
-
 export const amenittieSchema = z.object({
   id: z.coerce.string().trim(),
   name: z.coerce.string().trim(),
@@ -25,9 +12,7 @@ export const createAmenitieSchema = z.object({
 export const accommodationSchema = z.object({
   ulid: z.string().ulid(),
   name: z.coerce.string().trim(),
-  status: statusEnum.transform((value) =>
-    translateStatus("pt-br", value, translateMatrix)
-  ),
+  status: z.enum(["disponivel", "ocupado"]),
   total_guests: z.coerce.number().min(1),
   single_beds: z.coerce.number().min(0),
   double_beds: z.coerce.number().min(0),
@@ -43,14 +28,12 @@ export const updateAccommodationSchema = z.object({
   double_beds: z.coerce.number().min(0).optional(),
   price: z.coerce.number().min(0).optional(),
   amenities: z.array(z.string()).optional(),
-  status: statusEnumPtBr.transform((value) =>
-    translateStatus("en", value, translateMatrix)
-  ),
+  status: z.enum(["disponivel", "ocupado"]),
 });
 
 export const creationalAccommodationSchema = z.object({
   name: z.string().trim(),
-  status: statusEnum.default("avaiable"),
+  status: z.enum(["disponivel", "ocupado"]),
   total_guests: z.coerce.number().min(1),
   single_beds: z.coerce.number().min(0),
   double_beds: z.coerce.number().min(0),
@@ -65,34 +48,3 @@ export type CreateAmenitieDTO = z.infer<typeof createAmenitieSchema>;
 export type CreateAccommodationDTO = z.infer<
   typeof creationalAccommodationSchema
 >;
-
-function translateStatus(
-  to: "pt-br" | "en",
-  value: status | statusPtBr,
-  translateMatrix: [status, statusPtBr][]
-): status | statusPtBr {
-  switch (to) {
-    case "pt-br": {
-      const translation = translateMatrix.find(([status]) => status === value);
-
-      if (!translation) {
-        throw new Error(`Translation for ${value} not found in pt-br`);
-      }
-      return translation[1];
-    }
-    case "en": {
-      const translation = translateMatrix.find(
-        ([, statusPtBr]) => statusPtBr === value
-      );
-
-      if (!translation) {
-        throw new Error(`Translation for ${value} not found in en`);
-      }
-
-      return translation[0];
-    }
-    default: {
-      throw new Error("Invalid language code");
-    }
-  }
-}
