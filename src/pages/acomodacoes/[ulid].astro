@@ -41,7 +41,7 @@ const accommodation = result.data;
           id="status"
           label="Status"
           selected={accommodation.status}
-          options={["disponível", "ocupado"]}
+          options={["disponivel", "ocupado"]}
         />
         <div class="grid grid-cols-2">
           <NumberInput
@@ -128,7 +128,6 @@ const accommodation = result.data;
         const formData = new FormData(formElement);
 
         const accommodationData = getAccommodationFormData(formData);
-        console.log(accommodationData);
         const result =
           await actions.updateAccommodationAction(accommodationData);
         if (result.error) {
