@@ -3,7 +3,6 @@ import { actions } from "astro:actions";
 import LoginLayout from "../layouts/LoginLayout.astro";
 
 const tokenCookie = Astro.cookies.get("token");
-console.log("LOGIN 1 PAGE LOAD: Cookie?", tokenCookie);
 
 if (tokenCookie) {
   const token = tokenCookie.json();
@@ -20,16 +19,12 @@ if (tokenCookie) {
 if (Astro.request.method === "POST") {
   const formData = await Astro.request.formData();
   const { data, error } = await Astro.callAction(actions.loginAction, formData);
-  console.log("LOGIN 2 POST METHOD: Cookie?", Astro.cookies.get("token"));
 
   if (error) {
     console.error("Oops, there was a problem in you login attempt!!", error);
 
     return Astro.redirect("/login");
   } else {
-    console.log("O cookie via para / ? ->", Astro.cookies.has("token"));
-    console.log("REDIRECIONANDO PARA /");
-
     return Astro.redirect("/");
   }
 }
