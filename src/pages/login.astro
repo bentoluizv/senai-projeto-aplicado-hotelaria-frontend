@@ -1,31 +1,29 @@
 ---
-import { actions } from "astro:actions";
+import { loginAction } from "../actions/auth/loginAction";
+import { refreshTokenAction } from "../actions/auth/refreshTokenAction";
 import LoginLayout from "../layouts/LoginLayout.astro";
+const { cookies, callAction, redirect, request } = Astro;
 
-const tokenCookie = Astro.cookies.get("token");
+const tokenCookie = cookies.get("token");
 
 if (tokenCookie) {
   const token = tokenCookie.json();
-  const { data, error } = await Astro.callAction(
-    actions.refreshTokenAction,
-    token
-  );
+  const refreshTokenResult = await callAction(refreshTokenAction, token);
 
-  if (!error) {
-    return Astro.redirect("/");
+  if (!refreshTokenResult.error) {
+    return redirect("/");
   }
 }
 
-if (Astro.request.method === "POST") {
-  const formData = await Astro.request.formData();
-  const { data, error } = await Astro.callAction(actions.loginAction, formData);
+if (request.method === "POST") {
+  const formData = await request.formData();
+  const loginResult = await callAction(loginAction, formData);
 
-  if (error) {
-    console.error("Oops, there was a problem in you login attempt!!", error);
-
-    return Astro.redirect("/login");
+  if (loginResult.error) {
+    console.log(loginResult.error);
+    return redirect("/login");
   } else {
-    return Astro.redirect("/");
+    return redirect("/");
   }
 }
 ---
