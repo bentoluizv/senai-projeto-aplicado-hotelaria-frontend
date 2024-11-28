@@ -1,16 +1,13 @@
 import { defineAction } from "astro:actions";
 import { getCurrentUser } from "../../utils/auth/getCurrentUser";
+import { getToken } from "../../utils/auth/getToken";
 
 export const getCurrentUserAction = defineAction({
   handler: async (_, { cookies }) => {
-    const tokenCookie = cookies.get("token");
-
-    if (!tokenCookie) {
-      throw new Error("Token cookie not found!");
-    }
-    const token = tokenCookie.json();
+    const token = await getToken(cookies);
 
     const user = await getCurrentUser(token);
+
     return user;
   },
 });
