@@ -92,6 +92,8 @@ const accommodation = result.data;
 <script>
   import { actions } from "astro:actions";
   import { navigate } from "astro:transitions/client";
+  import Swal from "sweetalert2";
+  import { ConfirmDelete, Toast } from "../../components/alerts";
   import { getAccommodationFormData } from "../../utils/getFormData";
 
   handleDelete();
@@ -106,14 +108,27 @@ const accommodation = result.data;
       const urlSegments = document.location.pathname.split("/");
       const ulid = urlSegments[urlSegments.length - 1];
 
-      const result = await actions.deleteAccommodationAction({ ulid });
+      ConfirmDelete.fire().then(async (result) => {
+        if (result.isConfirmed) {
+          const actionResult = await actions.deleteAccommodationAction({
+            ulid,
+          });
 
-      if (result.error) {
-        console.log(result.error);
-        throw new Error("Not possible to delete accommodation");
-      }
+          if (actionResult.error) {
+            Toast.fire({
+              icon: "error",
+              title: actionResult.error,
+            });
+            return;
+          }
 
-      return navigate("/acomodacoes");
+          Swal.fire({
+            title: "Deletado!",
+            text: "Your file has been deleted.",
+            icon: "success",
+          }).then(() => navigate("/acomodacoes"));
+        }
+      });
     });
   }
 
@@ -128,11 +143,22 @@ const accommodation = result.data;
       const formData = new FormData(formElement);
 
       const accommodationData = getAccommodationFormData(formData);
+
       const result = await actions.updateAccommodationAction(accommodationData);
+
       if (result.error) {
-        console.log(result.error);
-        throw new Error("Not possible to update accommodation");
+        Toast.fire({
+          icon: "error",
+          title: result.error,
+        });
+        return;
       }
+
+      Swal.fire({
+        title: "Atualizado!",
+        text: "Acomodação Atualizada com Sucesso",
+        icon: "success",
+      }).then(() => navigate("/acomodacoes"));
 
       return navigate("/acomodacoes");
     });
