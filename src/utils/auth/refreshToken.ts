@@ -7,8 +7,10 @@ export const getRefreshedToken = async (token: Token) => {
     },
   });
   if (!response.ok) {
-    throw new Error("Authentication Failed");
+    const error = await response.json();
+    throw new Error(error.detail || "Authentication Failed");
   }
   const refreshedToken: Token = await response.json();
+
   return refreshedToken;
 };
