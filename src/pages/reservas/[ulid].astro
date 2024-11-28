@@ -89,12 +89,12 @@ const checkOut = new Date(booking.check_out);
       <div slot="buttons" class="w-full p-4 flex flex-col gap-8">
         <div slot="buttons" class="flex gap-5">
           <button
-            id="update_button"
+            id="check_in_button"
             class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-56"
             type="submit">Fazer Check-In</button
           >
           <button
-            id="delete_button"
+            id="cancel_button"
             class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-56"
             type="button">Cancelar</button
           >
@@ -110,3 +110,46 @@ const checkOut = new Date(booking.check_out);
     </Form>
   </main>
 </Layout>
+
+<script>
+  import { actions } from "astro:actions";
+  import { navigate } from "astro:transitions/client";
+  import Swal from "sweetalert2";
+  import { ConfirmCancel, Toast } from "../../components/alerts";
+
+  handleDelete();
+
+  function handleDelete() {
+    const cancelBtnElement = document.getElementById(
+      "cancel_button"
+    ) as HTMLButtonElement;
+
+    cancelBtnElement.addEventListener("click", async (event) => {
+      const urlSegments = document.location.pathname.split("/");
+      const ulid = urlSegments[urlSegments.length - 1];
+
+      ConfirmCancel.fire().then(async (result) => {
+        if (result.isConfirmed) {
+          const actionResult = await actions.changeBookingStatusAction({
+            ulid: ulid,
+            status: "cancelada",
+          });
+
+          if (actionResult.error) {
+            Toast.fire({
+              icon: "error",
+              title: actionResult.error,
+            });
+            return;
+          }
+
+          Swal.fire({
+            title: "Cancelada!",
+            text: "Reserva cancelada!",
+            icon: "success",
+          }).then(() => navigate("/reservas"));
+        }
+      });
+    });
+  }
+</script>
