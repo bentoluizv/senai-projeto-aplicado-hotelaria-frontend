@@ -14,10 +14,11 @@ export const loginForAccessToken = async (
 
   if (!response.ok) {
     const error = await response.json();
-    console.error("Login failed:", error);
+
     throw new Error(error.detail || "Authentication failed");
   }
 
   const jwt = (await response.json()) as Token;
+
   return jwt;
 };
