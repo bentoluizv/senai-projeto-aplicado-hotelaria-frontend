@@ -124,7 +124,7 @@ const accommodation = result.data;
 
           Swal.fire({
             title: "Deletado!",
-            text: "Your file has been deleted.",
+            text: "Acomodação deletada!",
             icon: "success",
           }).then(() => navigate("/acomodacoes"));
         }
@@ -159,8 +159,6 @@ const accommodation = result.data;
         text: "Acomodação Atualizada com Sucesso",
         icon: "success",
       }).then(() => navigate("/acomodacoes"));
-
-      return navigate("/acomodacoes");
     });
   }
 </script>

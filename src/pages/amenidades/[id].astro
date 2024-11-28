@@ -60,6 +60,9 @@ const amenitie = result.data;
 
 <script>
   import { actions } from "astro:actions";
+  import { navigate } from "astro:transitions/client";
+  import Swal from "sweetalert2";
+  import { ConfirmDelete, Toast } from "../../components/alerts";
 
   handleDelete();
 
@@ -72,16 +75,27 @@ const amenitie = result.data;
       const urlSegments = document.location.pathname.split("/");
       const id = urlSegments[urlSegments.length - 1];
 
-      const result = await actions.deleteAmenitieAction({ id });
+      ConfirmDelete.fire().then(async (result) => {
+        if (result.isConfirmed) {
+          const actionResult = await actions.deleteAmenitieAction({
+            id,
+          });
 
-      if (result.error) {
-        console.log(result.error);
-        throw new Error("Not possible to delete amenitie");
-      }
+          if (actionResult.error) {
+            Toast.fire({
+              icon: "error",
+              title: actionResult.error,
+            });
+            return;
+          }
 
-      console.log(result.data);
-
-      //   return navigate("/amenidades");
+          Swal.fire({
+            title: "Deletado!",
+            text: "Acomodação deletetada!",
+            icon: "success",
+          }).then(() => navigate("/amenidades"));
+        }
+      });
     });
   }
 </script>

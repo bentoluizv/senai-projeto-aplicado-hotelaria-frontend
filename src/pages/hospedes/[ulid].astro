@@ -68,6 +68,8 @@ const guest = result.data;
 <script>
   import { actions } from "astro:actions";
   import { navigate } from "astro:transitions/client";
+  import Swal from "sweetalert2";
+  import { ConfirmDelete, Toast } from "../../components/alerts";
 
   handleDelete();
   handleUpdate();
@@ -81,14 +83,27 @@ const guest = result.data;
       const urlSegments = document.location.pathname.split("/");
       const ulid = urlSegments[urlSegments.length - 1];
 
-      const result = await actions.deleteGuestAction({ ulid });
+      ConfirmDelete.fire().then(async (result) => {
+        if (result.isConfirmed) {
+          const actionResult = await actions.deleteGuestAction({
+            ulid,
+          });
 
-      if (result.error) {
-        console.log(result.error);
-        throw new Error("Not possible to delete guest");
-      }
+          if (actionResult.error) {
+            Toast.fire({
+              icon: "error",
+              title: actionResult.error,
+            });
+            return;
+          }
 
-      return navigate("/hospedes");
+          Swal.fire({
+            title: "Deletado!",
+            text: "Hóspede deletado!",
+            icon: "success",
+          }).then(() => navigate("/hospedes"));
+        }
+      });
     });
   }
 
@@ -101,20 +116,22 @@ const guest = result.data;
       event.preventDefault();
 
       const formData = new FormData(formElement);
-      const obj: any = {};
-
-      formData.forEach((valor, chave) => {
-        obj[chave] = valor;
-      });
 
       const result = await actions.updateGuestAction(formData);
 
       if (result.error) {
-        console.log(result.error);
-        throw new Error("Not possible to update guest");
+        Toast.fire({
+          icon: "error",
+          title: result.error,
+        });
+        return;
       }
 
-      return navigate("/hospedes");
+      Swal.fire({
+        title: "Atualizado!",
+        text: "Hóspede atualizado",
+        icon: "success",
+      }).then(() => navigate("/hospedes"));
     });
   }
 </script>
