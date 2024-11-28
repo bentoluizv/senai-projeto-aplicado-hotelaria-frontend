@@ -8,12 +8,13 @@ const token = z.object({
   token_type: z.string(),
 });
 
-const refreshTokenAction = defineAction({
+export const refreshTokenAction = defineAction({
   input: token,
   handler: async (input, { cookies }) => {
     const refreshToken = await getRefreshedToken(input);
+
     setSecureToken(cookies, refreshToken);
+
+    return refreshToken;
   },
 });
-
-export { refreshTokenAction };

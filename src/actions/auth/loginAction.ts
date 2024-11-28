@@ -3,7 +3,7 @@ import { loginForAccessToken } from "../../utils/auth/loginForAccessToken";
 import { setSecureToken } from "../../utils/auth/setSecureToken";
 import { getLoginFormData } from "../../utils/getLoginFormData";
 
-const loginAction = defineAction({
+export const loginAction = defineAction({
   accept: "form",
   handler: async (input, ctx) => {
     const { cookies } = ctx;
@@ -15,5 +15,3 @@ const loginAction = defineAction({
     setSecureToken(cookies, jwt);
   },
 });
-
-export { loginAction };
