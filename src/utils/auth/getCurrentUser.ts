@@ -12,5 +12,6 @@ export const getCurrentUser = async (token: Token) => {
   const data = await response.json();
 
   const user = await userSchema.parseAsync(data);
+
   return user;
 };
