@@ -21,3 +21,13 @@ export const ConfirmDelete = Swal.mixin({
   cancelButtonColor: "#d33",
   confirmButtonText: "Sim, delete!",
 });
+
+export const ConfirmCancel = Swal.mixin({
+  title: "Você tem certeza?",
+  text: "Essa ação é irreversível! Não será possível reativar essa reserva!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Sim, cancele!",
+});
