@@ -31,3 +31,13 @@ export const ConfirmCancel = Swal.mixin({
   cancelButtonColor: "#d33",
   confirmButtonText: "Sim, cancele!",
 });
+
+export const ConfirmAccommodationSelection = Swal.mixin({
+  title: "Você tem certeza?",
+  text: "Confirme a escolha da acomodação",
+  icon: "question",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Sim!",
+});
