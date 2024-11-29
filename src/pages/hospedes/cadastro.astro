@@ -1,23 +1,27 @@
 ---
-import { actions } from "astro:actions";
+import { createNewGuestAction } from "../../actions/guest/createNewGuestAction";
 import Form from "../../components/Form.astro";
 import SelectCountryInput from "../../components/SelectCountryInput.astro";
 import TextInput from "../../components/TextInput.astro";
 import Layout from "../../layouts/Layout.astro";
 
-if (Astro.request.method == "POST") {
-  const formData = await Astro.request.formData();
-  const { data, error } = await Astro.callAction(
-    actions.createNewGuestAction,
-    formData
-  );
+const { request, callAction, redirect } = Astro;
 
-  if (error) {
+const errors = [];
+
+if (request.method == "POST") {
+  try {
+    const formData = await request.formData();
+    const result = await callAction(createNewGuestAction, formData);
+
+    if (!result.error) {
+      return redirect("/hospedes");
+    }
+
+    errors.push(result.error);
+  } catch (error) {
     console.log(error);
-    return Astro.redirect("/hospedes/cadastro");
   }
-
-  return Astro.redirect("/hospedes");
 }
 ---
 
@@ -42,5 +46,14 @@ if (Astro.request.method == "POST") {
         </button>
       </div>
     </Form>
+    {
+      errors[0] && (
+        <div
+          class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded w-full max-w-md "
+          role="alert">
+          <span class="block sm:inline">{errors[0]}</span>
+        </div>
+      )
+    }
   </main>
 </Layout>
