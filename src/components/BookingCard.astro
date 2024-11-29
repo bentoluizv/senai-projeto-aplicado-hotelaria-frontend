@@ -1,0 +1,68 @@
+---
+import type { Booking } from "../schemas/booking";
+
+type Props = {
+  booking: Booking;
+};
+
+const { props } = Astro;
+
+const { booking } = props;
+const {
+  accommodation,
+  budget,
+  check_in,
+  check_out,
+  guest,
+  locator,
+  status,
+  ulid,
+} = booking;
+---
+
+<div
+  id={ulid}
+  class="bg-white shadow-lg rounded-lg overflow-hidden max-w-xl w-full">
+  <div class="p-4">
+    <h2 class="text-xl font-bold text-gray-800 mb-2">
+      Reserva: <span id="locator" class="text-blue-600">{locator}</span>
+    </h2>
+    <p class="text-sm text-gray-600 mb-4">
+      Status: <span id="status" class="font-medium text-green-500"
+        >{status}</span
+      >
+    </p>
+
+    <div class="grid grid-cols-2 gap-4 mb-4">
+      <div>
+        <p class="text-xs text-gray-500">Check-in</p>
+        <p id="check_in" class="text-sm font-medium text-gray-700">
+          {check_in}
+        </p>
+      </div>
+      <div>
+        <p class="text-xs text-gray-500">Check-out</p>
+        <p id="check_out" class="text-sm font-medium text-gray-700">
+          {check_out}
+        </p>
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <p class="text-xs text-gray-500">Hóspede</p>
+      <p id="guest" class="text-sm font-medium text-gray-700">{guest.name}</p>
+    </div>
+
+    <div class="mb-4">
+      <p class="text-xs text-gray-500">Acomodação</p>
+      <p id="accommodation" class="text-sm font-medium text-gray-700">
+        {accommodation.name}
+      </p>
+    </div>
+
+    <div>
+      <p class="text-xs text-gray-500">Orçamento</p>
+      <p id="budget" class="text-sm font-medium text-gray-700">{budget}</p>
+    </div>
+  </div>
+</div>
