@@ -9,7 +9,6 @@ export const getAllAccommodations = async (token: Token) => {
     },
   });
 
-  const error = await response.json();
   if (response.status == 401) {
     const error = await response.json();
     throw new Error(error.detail || `Auth failed`);
