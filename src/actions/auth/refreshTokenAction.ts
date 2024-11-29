@@ -1,5 +1,6 @@
 import { defineAction } from "astro:actions";
 import { z } from "astro:schema";
+import { getToken } from "../../utils/auth/getToken";
 import { getRefreshedToken } from "../../utils/auth/refreshToken";
 import { setSecureToken } from "../../utils/auth/setSecureToken";
 
@@ -9,9 +10,10 @@ const token = z.object({
 });
 
 export const refreshTokenAction = defineAction({
-  input: token,
-  handler: async (input, { cookies }) => {
-    const refreshToken = await getRefreshedToken(input);
+  handler: async (_, { cookies }) => {
+    const token = await getToken(cookies);
+
+    const refreshToken = await getRefreshedToken(token);
 
     setSecureToken(cookies, refreshToken);
 
