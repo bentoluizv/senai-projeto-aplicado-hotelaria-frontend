@@ -1,11 +1,11 @@
 ---
 import type { ZodType } from "astro:schema";
-import { findGuestByIDAction } from "../../actions/guest/findGuestByIDAction";
-import Form from "../../components/Form.astro";
-import SelectCountryInput from "../../components/SelectCountryInput.astro";
-import TextInput from "../../components/TextInput.astro";
-import Layout from "../../layouts/Layout.astro";
-import { type Guest } from "../../schemas/guest";
+import { findGuestByIDAction } from "../../../actions/guest/findGuestByIDAction";
+import Form from "../../../components/Form.astro";
+import SelectCountryInput from "../../../components/SelectCountryInput.astro";
+import TextInput from "../../../components/TextInput.astro";
+import Layout from "../../../layouts/Layout.astro";
+import type { Guest } from "../../../schemas/guest";
 
 const { ulid } = Astro.params;
 
@@ -69,7 +69,7 @@ const guest = result.data;
   import { actions } from "astro:actions";
   import { navigate } from "astro:transitions/client";
   import Swal from "sweetalert2";
-  import { ConfirmDelete, Toast } from "../../components/alerts";
+  import { ConfirmDelete, Toast } from "../../../components/alerts";
 
   handleDelete();
   handleUpdate();
