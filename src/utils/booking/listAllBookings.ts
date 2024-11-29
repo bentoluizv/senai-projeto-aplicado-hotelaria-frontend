@@ -19,12 +19,15 @@ export const listAllBookings = async (
   });
 
   if (response.status == 401) {
-    throw new Error(`Auth failed`);
+    const error = await response.json();
+    throw new Error(error.detail || `Auth failed`);
   }
 
   if (response.status != 200) {
+    const error = await response.json();
     throw new Error(
-      `Something went wrong with your request!! Response status: ${response.status}`
+      error.detail ||
+        `Something went wrong with your request!! Response status: ${response.status}`
     );
   }
 

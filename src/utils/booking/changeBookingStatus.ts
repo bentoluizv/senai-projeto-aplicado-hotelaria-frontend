@@ -15,13 +15,16 @@ export const changeBookingStatus = async (
   });
 
   if (response.status == 401) {
-    throw new Error(`Auth failed`);
+    const error = await response.json();
+    throw new Error(error.detail || `Auth failed`);
   }
 
   if (response.status != 200) {
-    const data = await response.json();
-    console.log(data.detail);
-    throw new Error("Unable to create a new booking");
+    const error = await response.json();
+
+    throw new Error(
+      error.detail || "Não foi possível mudar o status da reserva"
+    );
   }
 
   const data = await response.json();

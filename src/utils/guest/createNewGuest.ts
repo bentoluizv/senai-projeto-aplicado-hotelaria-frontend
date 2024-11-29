@@ -17,13 +17,13 @@ export const createNewGuest = async (
   });
 
   if (response.status == 401) {
-    throw new Error(`Auth failed`);
+    const error = await response.json();
+    throw new Error(error.detail || `Auth failed`);
   }
 
   if (response.status != 201) {
-    throw new Error(
-      `Something went wrong with your request!! Response status: ${response.status}`
-    );
+    const error = await response.json();
+    throw new Error(error.detail);
   }
 
   const data = await response.json();

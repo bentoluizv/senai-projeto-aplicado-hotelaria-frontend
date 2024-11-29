@@ -14,7 +14,8 @@ export const createNewAmenitie = async (
   });
 
   if (response.status == 401) {
-    throw new Error(`Auth failed`);
+    const error = await response.json();
+    throw new Error(error.detail || `Auth failed`);
   }
 
   if (response.status != 201) {
