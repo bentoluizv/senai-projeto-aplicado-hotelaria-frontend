@@ -28,12 +28,12 @@ export const updateAccommodationSchema = z.object({
   double_beds: z.coerce.number().min(0).optional(),
   price: z.coerce.number().min(0).optional(),
   amenities: z.array(z.string()).optional(),
-  status: z.enum(["disponivel", "ocupado"]),
+  status: z.enum(["disponivel", "ocupado"]).optional(),
 });
 
 export const creationalAccommodationSchema = z.object({
   name: z.string().trim(),
-  status: z.enum(["disponivel", "ocupado"]),
+  status: z.enum(["disponivel", "ocupado"]).default("disponivel"),
   total_guests: z.coerce.number().min(1),
   single_beds: z.coerce.number().min(0),
   double_beds: z.coerce.number().min(0),
