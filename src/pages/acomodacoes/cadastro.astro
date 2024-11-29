@@ -9,23 +9,27 @@ import { getAccommodationFormData } from "../../utils/getFormData";
 
 const { request, callAction, redirect } = Astro;
 
+const errors = [];
+
 if (request.method == "POST") {
-  const formData = await request.formData();
+  try {
+    const formData = await request.formData();
 
-  const accommodationData = getAccommodationFormData(formData);
+    const accommodationData = getAccommodationFormData(formData);
 
-  const { data, error } = await callAction(
-    createNewAccommodationAction,
-    accommodationData
-  );
+    const result = await callAction(
+      createNewAccommodationAction,
+      accommodationData
+    );
 
-  if (error) {
+    if (!result.error) {
+      return redirect("/acomodacoes");
+    }
+
+    errors.push(result.error);
+  } catch (error) {
     console.log(error);
-    return Astro.redirect("/acomodacoes/cadastro");
   }
-
-  console.log(data);
-  return redirect("/acomodacoes");
 }
 ---
 
@@ -52,5 +56,14 @@ if (request.method == "POST") {
         </button>
       </div>
     </Form>
+    {
+      errors[0] && (
+        <div
+          class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded w-full max-w-md "
+          role="alert">
+          <span class="block sm:inline">{errors[0]}</span>
+        </div>
+      )
+    }
   </main>
 </Layout>
