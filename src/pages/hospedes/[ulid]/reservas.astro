@@ -1,0 +1,23 @@
+---
+import { getAllBookingsByGuestAction } from "../../../actions/guest/getAllBookingsByGuestAction";
+import BookingCard from "../../../components/BookingCard.astro";
+import Layout from "../../../layouts/Layout.astro";
+
+const { callAction, params } = Astro;
+const { ulid } = params;
+
+const result = await callAction(getAllBookingsByGuestAction, ulid as string);
+
+if (result.error) {
+  throw new Error("Não foi possível listar todas as reservas");
+}
+
+const bookings = result.data;
+---
+
+<Layout>
+  <main
+    class="grow flex flex-col justify-center items-center w-full gap-5 mt-3">
+    {bookings.map((booking) => <BookingCard booking={booking} />)}
+  </main>
+</Layout>
