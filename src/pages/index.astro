@@ -5,10 +5,13 @@ import Layout from "../layouts/Layout.astro";
 <Layout>
   <main class="p-4 grow flex flex-col items-center justify-center gap-24">
     <h1 aria-hidden="true" hidden>Busca por Hóspede</h1>
-    <div class="flex flex-col md:flex-row items-center gap-2 w-full max-w-2xl">
+    <form
+      id="search-guest-form"
+      class="flex flex-col md:flex-row items-center gap-2 w-full max-w-2xl">
       <div class="flex flex-col w-full md:w-5/6 grow">
         <label hidden for="search_field">Documento</label>
         <input
+          required
           id="search_field"
           type="text"
           name="documento"
@@ -17,12 +20,12 @@ import Layout from "../layouts/Layout.astro";
         />
       </div>
       <button
-        type="button"
+        type="submit"
         id="search_btn"
         class="w-full md:w-1/6 bg-amber-400 text-zinc-800 font-semibold px-4 py-3 rounded-lg hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all duration-300 shadow-md">
         Procurar
       </button>
-    </div>
+    </form>
   </main>
 </Layout>
 
@@ -31,16 +34,16 @@ import Layout from "../layouts/Layout.astro";
   import { navigate } from "astro:transitions/client";
   import { Toast } from "../components/alerts";
 
-  const searchButton = document.getElementById(
-    "search_btn"
-  ) as HTMLButtonElement;
-
+  const form = document.getElementById("search-guest-form") as HTMLFormElement;
   const searchField = document.getElementById(
     "search_field"
   ) as HTMLInputElement;
 
-  searchButton.addEventListener("click", async (event) => {
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
     const input = searchField.value;
+
     const result = await actions.findGuestByIDAction(input);
     if (result.error) {
       Toast.fire({
