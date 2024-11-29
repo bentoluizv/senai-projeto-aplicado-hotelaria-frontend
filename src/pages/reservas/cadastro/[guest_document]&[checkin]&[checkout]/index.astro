@@ -4,9 +4,11 @@ import AccommodationWidget from "../../../../components/widgets/AccommodationWid
 import Layout from "../../../../layouts/Layout.astro";
 import type { Booking } from "../../../../schemas/booking";
 
-const { checkin, checkout } = Astro.params;
+const { params, callAction } = Astro;
 
-const result = await Astro.callAction(listAllBookingsAction, {
+const { checkin, checkout } = params;
+
+const result = await callAction(listAllBookingsAction, {
   pagination: { page: 1, perPage: 50 },
   filter: {
     start: checkin as string,
@@ -34,6 +36,10 @@ const bookedAccommodations = bookings.map(
 <script>
   import { actions } from "astro:actions";
   import { navigate } from "astro:transitions/client";
+  import {
+    ConfirmAccommodationSelection,
+    Toast,
+  } from "../../../../components/alerts";
 
   const path = document.location.pathname;
   const splitedPath = path.split("/");
@@ -72,32 +78,29 @@ const bookedAccommodations = bookings.map(
         throw new Error("No card selected");
       }
 
-      const confirmed = confirm("Você deseja selecionar essa acomodação?");
+      ConfirmAccommodationSelection.fire().then(async (result) => {
+        if (result.isConfirmed) {
+          const accommodation_ulid = card.id;
 
-      if (!confirmed) {
-        (card as HTMLElement).blur();
-        return;
-      }
+          const input = {
+            guest_document,
+            accommodation_ulid,
+            check_in,
+            check_out,
+          };
 
-      const accommodation_ulid = card.id;
+          const bookingResult = await actions.createNewBookingAction(input);
 
-      const input = {
-        guest_document,
-        accommodation_ulid,
-        check_in,
-        check_out,
-      };
+          if (!bookingResult.error) {
+            const booking = bookingResult.data;
+            return navigate(`/checkout/${booking.ulid}`);
+          }
 
-      const bookingResult = await actions.createNewBookingAction(input);
-
-      if (bookingResult.error) {
-        console.log(bookingResult.error);
-        throw new Error("Unable to create a new booking");
-      }
-
-      const booking = bookingResult.data;
-
-      return navigate(`/checkout/${booking.ulid}`);
+          Toast.fire({ icon: "error", title: bookingResult.error });
+        } else {
+          (card as HTMLElement).blur();
+        }
+      });
     });
   });
 </script>
