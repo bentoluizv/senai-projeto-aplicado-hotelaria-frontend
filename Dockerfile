@@ -1,17 +1,27 @@
-FROM node:22.11.0
-
-RUN npm install -g pnpm
+FROM node:lts AS builder
 
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml* ./
+COPY package*.json ./
 
-RUN pnpm install
+RUN npm install
 
 COPY . .
 
-RUN pnpm build
+RUN npm run build
+
+FROM node:lts-slim AS runtime
+
+WORKDIR /app
+
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package*.json ./
+
+RUN npm install --omit=dev
+
+ENV HOST=0.0.0.0
+ENV PORT=4321
 
 EXPOSE 4321
 
-CMD ["pnpm", "dev","--host", "0.0.0.0", "--port", "4321", "--force"]
+CMD ["node", "./dist/server/entry.mjs"]

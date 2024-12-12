@@ -1,5 +1,23 @@
-node_modules
-npm-debug.log
-.git
+# Ignorar pastas e arquivos gerados
+node_modules/
+dist/
+*.log
+*.tmp
+
+# Ignorar arquivos e configurações locais
+.vscode/
+.idea/
+*.swp
+*.sublime-workspace
+
+# Ignorar controle de versão
+.git/
+.gitignore
+
+# Ignorar arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Ignorar arquivos sensíveis e de configuração local
 .env
-dist
+.env.*
